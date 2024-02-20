@@ -16,7 +16,15 @@ NexText voltage = NexText(0, 8, "Voltage"); //Battery Vol
 NexProgressBar acePedal = NexProgressBar(0, 5, "acePedal"); //Ace pedal
 NexProgressBar brakePedal = NexProgressBar(0, 4, "brakePedal"); //Brake pedal
 
-//indicadores revoluciones
+//Breaks
+NexText breaks[] = {
+    NexText(0, 6, "brake1"), // Break 1
+    NexText(0, 9, "brake2")  // Break 2
+    NexText(0, 7, "brake3"), // Break 3
+    NexText(0, 8, "brake4")  // Break 4
+};
+
+//Indicadores revoluciones
 NexText texts[] = {
     NexText(0, 36, "t24"),
     NexText(0, 37, "t25"),
@@ -69,7 +77,19 @@ void loop() {
   speedd.setText(textoChar);
   engineTemp.setText(textoChar);
   voltage.setText(textoChar);
-  
+
+  // Breaks
+  for (int i = 0; i < 3; ++i) {
+    breaks[i].setText(textoChar);
+    if (vel > 120) {
+      breaks[i].Set_background_color_bco(63488); // Rojo 
+    } else if (vel > 70 && vel < 120) {
+      breaks[i].Set_background_color_bco(62757); // Naranja  
+    } else {
+      breaks[i].Set_background_color_bco(36609); // Verde -> OK
+    }
+  }
+
   //Calculamos el num de cuadrados de rpms
   int numTexts = vel / sizeof(texts[0]);    //59/10=5
   String textoCo = String(numTexts);
@@ -81,6 +101,6 @@ void loop() {
   for (int i = 0; i < numTexts; ++i) {
     texts[i].Set_background_color_bco(colors[i][pos]);
     pos++;
- }
- vel++;
+  }
+   vel++;
 }
