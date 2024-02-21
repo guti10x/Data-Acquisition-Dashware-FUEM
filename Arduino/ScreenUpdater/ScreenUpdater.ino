@@ -5,7 +5,7 @@
 // Configuración de pines para la comunicación serial
 SoftwareSerial nextion(2, 3); // RX, TX
 
-// Parameters
+//Parameters
 NexText gear = NexText(0, 17, "t6"); //Gear
 NexText speedd = NexText(0, 1, "Speed"); //Speed
 NexText rpm = NexText(0, 19, "t10");  //RPM
@@ -19,8 +19,8 @@ NexProgressBar brakePedal = NexProgressBar(0, 4, "breakPedal"); //Brake pedal
 //Breaks
 NexText breaks[] = {
     NexText(0, 6, "brake1"), // Break 1
-    NexText(0, 9, "brake2"),  // Break 2
-    NexText(0, 7, "brake3") // Break 3
+    NexText(0, 9, "brake2"), // Break 2
+    NexText(0, 7, "brake3"), // Break 3
     NexText(0, 8, "brake4")  // Break 4
 };
 
@@ -44,7 +44,8 @@ NexText texts[] = {
 };
 
 //Estados indicadores de rpms
-int colors[15][15] = {{2016, 1024, 1024, 1024, 1024, 147, 147, 147, 147, 147, 38912, 38912, 38912, 38912, 38912},
+int colors[16][15] = {{1024, 1024, 1024, 1024, 1024, 147, 147, 147, 147, 147, 38912, 38912, 38912, 38912, 38912},
+                      {2016, 1024, 1024, 1024, 1024, 147, 147, 147, 147, 147, 38912, 38912, 38912, 38912, 38912},
                       {2016, 2016, 1024, 1024, 1024, 147, 147, 147, 147, 147, 38912, 38912, 38912, 38912, 38912},
                       {2016, 2016, 2016, 1024, 1024, 147, 147, 147, 147, 147, 38912, 38912, 38912, 38912, 38912},
                       {2016, 2016, 2016, 2016, 1024, 147, 147, 147, 147, 147, 38912, 38912, 38912, 38912, 38912},
@@ -95,11 +96,12 @@ void loop() {
     speedd.Set_background_color_bco(63488); // Red 
   }
     
-  // Breaks
+  //Breaks
   for (int i = 0; i < 3; ++i) {
     breaks[i].setText(textoChar);
     if (vel > 120) {
       breaks[i].Set_background_color_bco(63488); // Rojo 
+      
     } else if (vel > 70 && vel < 120) {
       breaks[i].Set_background_color_bco(62757); // Naranja  
     } else {
@@ -115,8 +117,8 @@ void loop() {
   gear.setText(textoCh);
  
   int pos=0;
-  for (int i = 0; i < numTexts; ++i) {
-    texts[i].Set_background_color_bco(colors[i][pos]);
+  for (int i = 0; i < 16; ++i) {
+    texts[i].Set_background_color_bco(colors[numTexts][pos]);
     pos++;
   }
    vel++;
