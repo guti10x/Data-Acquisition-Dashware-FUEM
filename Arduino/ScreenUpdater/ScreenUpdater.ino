@@ -6,9 +6,9 @@
 SoftwareSerial nextion(2, 3); // RX, TX
 
 //Parameters
-NexText gear = NexText(0, 17, "t6"); //Gear
+NexText gear = NexText(0, 17, "gear"); //Gear
 NexText speedd = NexText(0, 1, "Speed"); //Speed
-NexText rpm = NexText(0, 19, "t10");  //RPM
+NexText rpm = NexText(0, 19, "rpm");  //RPM
 NexText engineTemp = NexText(0, 3, "engineTemp"); //Engine Temp
 NexText voltage = NexText(0, 2, "Voltage"); //Battery Vol
 
@@ -25,41 +25,9 @@ NexText breaks[] = {
 };
 
 //Indicadores revoluciones
-NexText texts[] = {
-    NexText(0, 36, "t24"),
-    NexText(0, 37, "t25"),
-    NexText(0, 28, "t14"),
-    NexText(0, 29, "t15"),
-    NexText(0, 30, "t16"),
-    NexText(0, 31, "t17"),
-    NexText(0, 32, "t18"),
-    NexText(0, 33, "t19"),
-    NexText(0, 34, "t22"),
-    NexText(0, 35, "t23"),
-    NexText(0, 26, "t12"),
-    NexText(0, 27, "t13"),
-    NexText(0, 25, "t21"),
-    NexText(0, 24, "t22"),
-    NexText(0, 23, "t29")
-};
-
-//Estados indicadores de rpms
-int colors[16][15] = {{1024, 1024, 1024, 1024, 1024, 147, 147, 147, 147, 147, 38912, 38912, 38912, 38912, 38912},
-                      {2016, 1024, 1024, 1024, 1024, 147, 147, 147, 147, 147, 38912, 38912, 38912, 38912, 38912},
-                      {2016, 2016, 1024, 1024, 1024, 147, 147, 147, 147, 147, 38912, 38912, 38912, 38912, 38912},
-                      {2016, 2016, 2016, 1024, 1024, 147, 147, 147, 147, 147, 38912, 38912, 38912, 38912, 38912},
-                      {2016, 2016, 2016, 2016, 1024, 147, 147, 147, 147, 147, 38912, 38912, 38912, 38912, 38912},
-                      {2016, 2016, 2016, 2016, 2016, 147, 147, 147, 147, 147, 38912, 38912, 38912, 38912, 38912},
-                      {2016, 2016, 2016, 2016, 2016, 10623, 147, 147, 147, 147, 38912, 38912, 38912, 38912, 38912},
-                      {2016, 2016, 2016, 2016, 2016, 10623, 10623, 147, 147, 147, 38912, 38912, 38912, 38912, 38912},
-                      {2016, 2016, 2016, 2016, 2016, 10623, 10623, 10623, 147, 147, 38912, 38912, 38912, 38912, 38912},
-                      {2016, 2016, 2016, 2016, 2016, 10623, 10623, 10623, 10623, 147, 38912, 38912, 38912, 38912, 38912},
-                      {2016, 2016, 2016, 2016, 2016, 10623, 10623, 10623, 10623, 10623, 38912, 38912, 38912, 38912, 38912},
-                      {2016, 2016, 2016, 2016, 2016, 10623, 10623, 10623, 10623, 10623, 63781, 38912, 38912, 38912, 38912},
-                      {2016, 2016, 2016, 2016, 2016, 10623, 10623, 10623, 10623, 10623, 63781, 63781, 38912, 38912, 38912},
-                      {2016, 2016, 2016, 2016, 2016, 10623, 10623, 10623, 10623, 10623, 63781, 63781, 63781, 38912, 38912},
-                      {2016, 2016, 2016, 2016, 2016, 10623, 10623, 10623, 10623, 10623, 63781, 63781, 63781, 63781, 38912},
-                      {2016, 2016, 2016, 2016, 2016, 10623, 10623, 10623, 10623, 10623, 63781, 63781, 63781, 63781, 63781}};
+NexProgressBar rpmindex1 = NexProgressBar(0, 27, "rpmsi1");
+NexProgressBar rpmindex2 = NexProgressBar(0, 28, "rpmsi2");
+NexProgressBar rpmindex3 = NexProgressBar(0, 29, "rpmsi3");
 
 void setup() {
   nextion.begin(9600);
@@ -95,31 +63,42 @@ void loop() {
     gear.Set_background_color_bco(63488); // Red
     speedd.Set_background_color_bco(63488); // Red 
   }
-    
+
   //Breaks
-  for (int i = 0; i < 3; ++i) {
+  for (int i = 0; i < 4; ++i) {
     breaks[i].setText(textoChar);
-    if (vel > 120) {
+    if (vel >= 80) {
       breaks[i].Set_background_color_bco(63488); // Rojo 
       
-    } else if (vel > 70 && vel < 120) {
+    } else if (vel >= 60 && vel <= 80) {
       breaks[i].Set_background_color_bco(62757); // Naranja  
     } else {
       breaks[i].Set_background_color_bco(36609); // Verde -> OK
     }
   }
   
-  //Calculamos el num de cuadrados de rpms
-  int numTexts = vel / sizeof(texts[0]);    //59/10=5
+  //RPM value
+  int numTexts = vel / 15; 
   String textoCo = String(numTexts);
   const char* textoCh = textoCo.c_str();
   rpm.setText(textoCh);
   gear.setText(textoCh);
- 
-  int pos=0;
-  for (int i = 0; i < 16; ++i) {
-    texts[i].Set_background_color_bco(colors[numTexts][pos]);
-    pos++;
+
+  //RPMs indicator
+  
+  if (vel >= 72) {
+    rpmindex1.setValue(100);
+    rpmindex2.setValue(100);
+    rpmindex3.setValue(vel);
+  } else if (vel >= 36 && vel <= 72) {
+    rpmindex1.setValue(100);
+    rpmindex2.setValue(vel);
+    rpmindex3.setValue(0);    
+  } else {
+    rpmindex1.setValue(vel);
+    rpmindex2.setValue(0);
+    rpmindex3.setValue(0);
   }
-   vel++;
+  
+  vel++;
 }
