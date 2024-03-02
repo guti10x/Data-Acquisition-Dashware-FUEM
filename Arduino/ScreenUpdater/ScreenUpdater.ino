@@ -65,10 +65,10 @@ void loop() {
   //Breaks
   for (int i = 0; i < 4; ++i) {
     breaks[i].setText(textoChar);
-    if (vel > 120) {
+    if (vel >= 80) {
       breaks[i].Set_background_color_bco(63488); // Rojo 
       
-    } else if (vel > 70 && vel < 120) {
+    } else if (vel >= 60 && vel <= 80) {
       breaks[i].Set_background_color_bco(62757); // Naranja  
     } else {
       breaks[i].Set_background_color_bco(36609); // Verde -> OK
@@ -84,12 +84,12 @@ void loop() {
 
   //RPMs indicator
   rpmindex.setValue(vel);
-  if (vel > 120) {
-    rpmindex.Set_background_color_bco(63488); // Rojo 
-  } else if (vel > 70 && vel < 120) {
-    rpmindex.Set_background_color_bco(62757); // Naranja  
+  if (vel >= 72) {
+    rpmindex.Set_font_color_pco(63488); // Rojo 
+  } else if (vel >= 36 && vel <= 72) {
+    rpmindex.Set_font_color_pco(62757); // Naranja  
   } else {
-    rpmindex.Set_background_color_bco(36609); // Verde -> OK
+    rpmindex.Set_font_color_pco(36609); // Verde -> OK
   }
   
   vel++;
