@@ -25,7 +25,9 @@ NexText breaks[] = {
 };
 
 //Indicadores revoluciones
-NexProgressBar rpmindex = NexProgressBar(0, 21, "rpmsi");
+NexProgressBar rpmindex1 = NexProgressBar(0, 27, "rpmsi1");
+NexProgressBar rpmindex2 = NexProgressBar(0, 28, "rpmsi2");
+NexProgressBar rpmindex3 = NexProgressBar(0, 29, "rpmsi3");
 
 void setup() {
   nextion.begin(9600);
@@ -83,13 +85,19 @@ void loop() {
   gear.setText(textoCh);
 
   //RPMs indicator
-  rpmindex.setValue(vel);
+  
   if (vel >= 72) {
-    rpmindex.Set_font_color_pco(63488); // Rojo 
+    rpmindex1.setValue(100);
+    rpmindex2.setValue(100);
+    rpmindex3.setValue(vel);
   } else if (vel >= 36 && vel <= 72) {
-    rpmindex.Set_font_color_pco(62757); // Naranja  
+    rpmindex1.setValue(100);
+    rpmindex2.setValue(vel);
+    rpmindex3.setValue(0);    
   } else {
-    rpmindex.Set_font_color_pco(36609); // Verde -> OK
+    rpmindex1.setValue(vel);
+    rpmindex2.setValue(0);
+    rpmindex3.setValue(0);
   }
   
   vel++;
