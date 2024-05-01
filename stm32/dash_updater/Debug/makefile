@@ -60,8 +60,8 @@ all: main-build
 main-build: dash_updater.elf secondary-outputs
 
 # Tool invocations
-dash_updater.elf dash_updater.map: $(OBJS) $(USER_OBJS) C:\Users\34673\STM32CubeIDE\workspace_1.15.1\dash_updater\STM32F411RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "dash_updater.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\34673\STM32CubeIDE\workspace_1.15.1\dash_updater\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="dash_updater.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+dash_updater.elf dash_updater.map: $(OBJS) $(USER_OBJS) C:\Users\Pablo\OneDrive\Documentos\FUEM\nextion\dashware_FUEM\stm32\dash_updater\STM32F411RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "dash_updater.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\Pablo\OneDrive\Documentos\FUEM\nextion\dashware_FUEM\stm32\dash_updater\STM32F411RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="dash_updater.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

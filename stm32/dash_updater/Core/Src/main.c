@@ -1,9 +1,9 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
+  **********
   * @file           : main.c
   * @brief          : Main program body
-  ******************************************************************************
+  **********
   * @attention
   *
   * Copyright (c) 2024 STMicroelectronics.
@@ -13,7 +13,7 @@
   * in the root directory of this software component.
   * If no LICENSE file comes with this software, it is provided AS-IS.
   *
-  ******************************************************************************
+  **********
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
@@ -21,6 +21,7 @@
 #include "math.h"
 #include "stdio.h"
 #include "stdlib.h"
+#include <stdint.h>
 #include <time.h>
 
 /* Private includes ----------------------------------------------------------*/
@@ -63,14 +64,77 @@ static void MX_USART1_UART_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
+//Variable para indicar el final del mensaje
 uint8_t Cmd_End[3]= {0xff,0xff,0xff};
+
+//Función para actualizar objeto obj de la interfaz con un valor text
 void NEXTION_SendText(char *obj, char *text) {
-    uint8_t *buffer = malloc(50 * sizeof(char)); // Increased buffer size for text
-    int len = sprintf((char *)buffer, "%s.txt=\"%s\"", obj, text); // Changed .val to .txt
-    HAL_UART_Transmit(&huart1, buffer, len, 1000);
-    HAL_UART_Transmit(&huart1, Cmd_End, 3, 100);
-    free(buffer);
+	uint8_t *buffer = malloc(50 * sizeof(char)); // Reserva memoria para un buffer de 50 bytes
+	int len = sprintf((char *)buffer, "%s.txt=\"%s\"", obj, text); // inicializa el buffer con el objeto y valor a inicializar
+	HAL_UART_Transmit(&huart1, buffer, len, 1000); // Transmite el buffer a través de UART
+	HAL_UART_Transmit(&huart1, Cmd_End, 3, 100); // Transmite Cmd_End para indicar que finalizó el mensaje
+	free(buffer); // Libera la memoria asignada al buffer
 }
+void NEXTION_SendNumber(char *obj, int number) {
+    uint8_t *buffer = malloc(50 * sizeof(char)); // Reserva memoria para un buffer de 50 bytes
+    int len = sprintf((char *)buffer, "%s.val=%d", obj, number); // Inicializa el buffer con el objeto y el valor a inicializar
+    HAL_UART_Transmit(&huart1, buffer, len, 1000); // Transmite el buffer a través de UART
+    HAL_UART_Transmit(&huart1, Cmd_End, 3, 100); // Transmite Cmd_End para indicar que finalizó el mensaje
+    free(buffer); // Libera la memoria asignada al buffer
+}
+
+void procesarReceivedCan(uint16_t valor) {
+    // Generar un número aleatorio entre 0 y 9
+    int random_value = rand() % 100;
+
+    // Convertir el número aleatorio a una cadena de caracteres
+    char text[2]; // Suponiendo que los valores aleatorios solo van de 0 a 9
+    sprintf(text, "%d", random_value);
+
+    // Añadir un retraso de 10ms
+    HAL_Delay(10);
+
+    switch(valor) {
+        case 0x110:
+            NEXTION_SendText("speed", text);
+            break;
+        case 0x120:
+            NEXTION_SendText("voltage", text);
+            break;
+        case 0x655:
+        	NEXTION_SendNumber("brakePedal", random_value);
+            break;
+        case 0x640:
+            NEXTION_SendText("revValue", text);
+            break;
+        case 0x641:
+            NEXTION_SendText("gear", text);
+            break;
+        case 0x642:
+        	NEXTION_SendNumber("acePedal", random_value);
+            break;
+        case 0x643:
+            NEXTION_SendText("brake1", text);
+            break;
+        case 0x644:
+            NEXTION_SendText("brake2", text);
+            break;
+        case 0x645:
+            NEXTION_SendText("brake3", text);
+            break;
+        case 0x646:
+            NEXTION_SendText("brake4", text);
+            break;
+        case 0x647:
+            NEXTION_SendText("engineTemp", text);
+            break;
+        default:
+            break;
+    }
+}
+
+
+
 
 /* USER CODE END 0 */
 
@@ -80,7 +144,8 @@ void NEXTION_SendText(char *obj, char *text) {
   */
 int main(void)
 {
-
+	// Semilla para la generación de números aleatorios
+	srand(time(NULL));
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
@@ -115,7 +180,50 @@ int main(void)
   {
     /* USER CODE END WHILE */
 
-	NEXTION_SendText("speed","666");
+
+
+	// Generar valor aleatorio entre 0 y 9
+	int random_value = rand() % 11;
+
+	switch(random_value) {
+		case 0:
+			procesarReceivedCan(0x110);
+
+			break;
+		case 1:
+			procesarReceivedCan(0x120);
+			break;
+		case 2:
+			procesarReceivedCan(0x655);
+			break;
+		case 3:
+			procesarReceivedCan(0x640);
+			break;
+		case 4:
+			procesarReceivedCan(0x641);
+			break;
+		case 5:
+			procesarReceivedCan(0x642);
+			break;
+		case 6:
+			procesarReceivedCan(0x643);
+			break;
+		case 7:
+			procesarReceivedCan(0x644);
+			break;
+		case 8:
+			procesarReceivedCan(0x645);
+			break;
+		case 9:
+			procesarReceivedCan(0x646);
+			break;
+		case 10:
+			procesarReceivedCan(0x647);
+			break;
+		default:
+			printf("Número aleatorio fuera de rango\n");
+			break;
+	}
 
     /* USER CODE BEGIN 3 */
   }
