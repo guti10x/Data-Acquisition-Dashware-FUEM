@@ -63,18 +63,28 @@ static void MX_USART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+const int color = 0; // Declaración global de color rojo para alertas
+const char *array_elementos_a_poner_rojo_por_alerta[] = {"speed", "revValue", "gear", "brake1", "brake2", "brake3", "brake4", "brakePedal", "acePedal"}; //elelementos d el ainterfaz a actualizar por alerta
 
 //Variable para indicar el final del mensaje
 uint8_t Cmd_End[3]= {0xff,0xff,0xff};
 
-//Función para actualizar objeto obj de la interfaz con un valor text
-void NEXTION_SendText(char *obj, char *text) {
+NEXTION_SendText_sin_unidades(char *obj, char *text) {
 	uint8_t *buffer = malloc(50 * sizeof(char)); // Reserva memoria para un buffer de 50 bytes
 	int len = sprintf((char *)buffer, "%s.txt=\"%s\"", obj, text); // inicializa el buffer con el objeto y valor a inicializar
 	HAL_UART_Transmit(&huart1, buffer, len, 1000); // Transmite el buffer a través de UART
 	HAL_UART_Transmit(&huart1, Cmd_End, 3, 100); // Transmite Cmd_End para indicar que finalizó el mensaje
 	free(buffer); // Libera la memoria asignada al buffer
 }
+//Función para actualizar objeto obj de la interfaz con un valor text
+void NEXTION_SendText_unidades(char *obj, char *text, char *units) {
+    uint8_t *buffer = malloc(50 * sizeof(char)); // Reserva memoria para un buffer de 50 bytes
+    int len = sprintf((char *)buffer, "%s.txt=\"%s%s\"", obj, text, units); // Agrega las unidades al texto
+    HAL_UART_Transmit(&huart1, buffer, len, 1000); // Transmite el buffer a través de UART
+    HAL_UART_Transmit(&huart1, Cmd_End, 3, 100); // Transmite Cmd_End para indicar que finalizó el mensaje
+    free(buffer); // Libera la memoria asignada al buffer
+}
+
 void NEXTION_SendNumber(char *obj, int number) {
     uint8_t *buffer = malloc(50 * sizeof(char)); // Reserva memoria para un buffer de 50 bytes
     int len = sprintf((char *)buffer, "%s.val=%d", obj, number); // Inicializa el buffer con el objeto y el valor a inicializar
@@ -86,9 +96,10 @@ void NEXTION_SendNumber(char *obj, int number) {
 void procesarReceivedCan(uint16_t valor) {
     // Generar un número aleatorio entre 0 y 9
     int random_value = rand() % 100;
+    int rev = rand() % 9000;
 
     // Convertir el número aleatorio a una cadena de caracteres
-    char text[2]; // Suponiendo que los valores aleatorios solo van de 0 a 9
+    char text[4]; // Suponiendo que los valores aleatorios solo van de 0 a 9
     sprintf(text, "%d", random_value);
 
     // Añadir un retraso de 10ms
@@ -96,43 +107,91 @@ void procesarReceivedCan(uint16_t valor) {
 
     switch(valor) {
         case 0x110:
-            NEXTION_SendText("speed", text);
+        	NEXTION_SendText_sin_unidades("speed", text);
             break;
         case 0x120:
-            NEXTION_SendText("voltage", text);
+        	NEXTION_SendText_unidades("voltage", text, "V");
             break;
         case 0x655:
         	NEXTION_SendNumber("brakePedal", random_value);
             break;
         case 0x640:
-            NEXTION_SendText("revValue", text);
+        	NEXTION_SendText_unidades("revValue", text, " RPM");
             break;
         case 0x641:
-            NEXTION_SendText("gear", text);
+        	NEXTION_SendText_sin_unidades("gear", text);
             break;
         case 0x642:
         	NEXTION_SendNumber("acePedal", random_value);
             break;
         case 0x643:
-            NEXTION_SendText("brake1", text);
+        	NEXTION_SendText_unidades("brake1", text, "C");
             break;
         case 0x644:
-            NEXTION_SendText("brake2", text);
+        	NEXTION_SendText_unidades("brake2", text, "C");
             break;
         case 0x645:
-            NEXTION_SendText("brake3", text);
+        	NEXTION_SendText_unidades("brake3", text, "C");
             break;
         case 0x646:
-            NEXTION_SendText("brake4", text);
+        	NEXTION_SendText_unidades("brake4", text, "C");
             break;
         case 0x647:
-            NEXTION_SendText("engineTemp", text);
+        	NEXTION_SendText_unidades("engineTemp", text, "C");
+            break;
+        case 0x648:
+        	ledsRevoluciones(rev);
             break;
         default:
             break;
     }
 }
 
+void NEXTION_Alert(void) {
+    for (int i = 0; i < 9; i++) {
+        uint8_t *buffer = malloc(50 * sizeof(char));
+
+        // Formatea y transmite el mensaje para el elemento actual
+        int len = sprintf((char *)buffer, "%s.bco=%d", array_elementos_a_poner_rojo_por_alerta[i], color);
+
+        HAL_UART_Transmit(&huart1, buffer, len, 1000);
+        HAL_UART_Transmit(&huart1, Cmd_End, 3, 100);
+
+        // Libera el buffer
+        free(buffer);
+    }
+}
+
+
+void ledsRevoluciones(int val) {
+    int resultado1 = 0;
+    int resultado2 = 0;
+    int resultado3 = 0;
+
+    if (val >= 0 && val < 3000) {
+        resultado1 = val / 30.0; // Rango 0-3000
+        resultado1 = (resultado1 + 10) / 20 * 20;
+        resultado2 = 0;
+        resultado3 = 0;
+    } else if (val >= 3000 && val < 6000) {
+        resultado1 = 100;
+        resultado2 = (val - 3000) / 30.0; // Rango 3000-6000
+        resultado2 = (resultado2 + 10) / 20 * 20;
+
+        resultado3 = 0;
+    } else if (val >= 6000 && val <= 9000) {
+        resultado1 = 100;
+        resultado2 = 100;
+        resultado3 = (val - 6000) / 30.0; // Rango 6000-9000
+        resultado3 = (resultado3 + 10) / 20 * 20;
+
+    }
+
+    // Envía los resultados a las barras correspondientes
+    NEXTION_SendNumber("led1", resultado1);
+    NEXTION_SendNumber("led2", resultado2);
+    NEXTION_SendNumber("led3", resultado3);
+}
 
 
 
@@ -144,6 +203,8 @@ void procesarReceivedCan(uint16_t valor) {
   */
 int main(void)
 {
+//	  NEXTION_Alert();
+
 	// Semilla para la generación de números aleatorios
 	srand(time(NULL));
   /* USER CODE BEGIN 1 */
@@ -180,15 +241,14 @@ int main(void)
   {
     /* USER CODE END WHILE */
 
-
+//	  NEXTION_Alert();
 
 	// Generar valor aleatorio entre 0 y 9
-	int random_value = rand() % 11;
+	int random_value = rand() % 12;
 
 	switch(random_value) {
 		case 0:
 			procesarReceivedCan(0x110);
-
 			break;
 		case 1:
 			procesarReceivedCan(0x120);
@@ -219,6 +279,9 @@ int main(void)
 			break;
 		case 10:
 			procesarReceivedCan(0x647);
+			break;
+		case 11:
+			procesarReceivedCan(0x648);
 			break;
 		default:
 			printf("Número aleatorio fuera de rango\n");
