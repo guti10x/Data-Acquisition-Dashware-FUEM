@@ -23,6 +23,8 @@
 #include "stdlib.h"
 #include <stdint.h>
 #include <time.h>
+#include <unistd.h> // Para sleep
+
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -193,7 +195,18 @@ void ledsRevoluciones(int val) {
     NEXTION_SendNumber("led3", resultado3);
 }
 
-
+void NEXTION_SendPageChange(char *page_name) {
+    // Reserva memoria para un buffer de 50 bytes
+    uint8_t *buffer = malloc(50 * sizeof(char));
+    // Inicializa el buffer con la instrucción para cambiar de página
+    int len = sprintf((char *)buffer, "page %s", page_name);
+    // Transmite el buffer a través de UART
+    HAL_UART_Transmit(&huart1, buffer, len, 1000);
+    // Transmite un comando para indicar el final del mensaje
+    HAL_UART_Transmit(&huart1, Cmd_End, 3, 100);
+    // Libera la memoria asignada al buffer
+    free(buffer);
+}
 
 /* USER CODE END 0 */
 
@@ -203,7 +216,6 @@ void ledsRevoluciones(int val) {
   */
 int main(void)
 {
-//	  NEXTION_Alert();
 
 	// Semilla para la generación de números aleatorios
 	srand(time(NULL));
@@ -232,7 +244,10 @@ int main(void)
   MX_USART2_UART_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  //	  NEXTION_Alert();
+	NEXTION_SendPageChange("page0");
+      HAL_Delay(4000);
+  	NEXTION_SendPageChange("page1");
   /* USER CODE END 2 */
 
   /* Infinite loop */
