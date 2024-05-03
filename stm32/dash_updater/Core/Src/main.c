@@ -23,7 +23,6 @@
 #include "stdlib.h"
 #include <stdint.h>
 #include <time.h>
-#include <unistd.h> // Para sleep
 
 
 /* Private includes ----------------------------------------------------------*/
@@ -63,30 +62,33 @@ static void MX_USART1_UART_Init(void);
 
 /* USER CODE END PFP */
 
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-const int color = 0; // Declaración global de color rojo para alertas
-const char *array_elementos_a_poner_rojo_por_alerta[] = {"speed", "revValue", "gear", "brake1", "brake2", "brake3", "brake4", "brakePedal", "acePedal"}; //elelementos d el ainterfaz a actualizar por alerta
+/* VARIABLES ---------------------------------------------------------*/
+// Elementos en la interfaz a modificar en la interfaz si se supera threshold
+const char *array_elementos_a_poner_rojo_por_alerta[] = {"speed", "revValue", "gear", "brake1", "brake2", "brake3", "brake4", "voltage","engineTemp",}; //elelementos d el ainterfaz a actualizar por alerta
 
 //Variable para indicar el final del mensaje
 uint8_t Cmd_End[3]= {0xff,0xff,0xff};
 
-NEXTION_SendText_sin_unidades(char *obj, char *text) {
+// Función para actualizar objeto obj de la interfaz con un valor text
+void NEXTION_SendText(char *obj, char *text, char *units) {
+
 	uint8_t *buffer = malloc(50 * sizeof(char)); // Reserva memoria para un buffer de 50 bytes
-	int len = sprintf((char *)buffer, "%s.txt=\"%s\"", obj, text); // inicializa el buffer con el objeto y valor a inicializar
-	HAL_UART_Transmit(&huart1, buffer, len, 1000); // Transmite el buffer a través de UART
-	HAL_UART_Transmit(&huart1, Cmd_End, 3, 100); // Transmite Cmd_End para indicar que finalizó el mensaje
-	free(buffer); // Libera la memoria asignada al buffer
-}
-//Función para actualizar objeto obj de la interfaz con un valor text
-void NEXTION_SendText_unidades(char *obj, char *text, char *units) {
-    uint8_t *buffer = malloc(50 * sizeof(char)); // Reserva memoria para un buffer de 50 bytes
-    int len = sprintf((char *)buffer, "%s.txt=\"%s%s\"", obj, text, units); // Agrega las unidades al texto
+
+	int len = 0;
+
+	if (units == NULL || units[0] == '\0') {
+		len = sprintf((char *)buffer, "%s.txt=\"%s\"", obj, text);  // Agregar el texto al objeto
+
+	}else {
+		len = sprintf((char *)buffer, "%s.txt=\"%s%s\"", obj, text, units); // Agrega las unidades al texto del objeto
+	}
+
     HAL_UART_Transmit(&huart1, buffer, len, 1000); // Transmite el buffer a través de UART
     HAL_UART_Transmit(&huart1, Cmd_End, 3, 100); // Transmite Cmd_End para indicar que finalizó el mensaje
     free(buffer); // Libera la memoria asignada al buffer
 }
 
+// Para baras laterales de frenado y aceleración + barra superiro de revoluciones
 void NEXTION_SendNumber(char *obj, int number) {
     uint8_t *buffer = malloc(50 * sizeof(char)); // Reserva memoria para un buffer de 50 bytes
     int len = sprintf((char *)buffer, "%s.val=%d", obj, number); // Inicializa el buffer con el objeto y el valor a inicializar
@@ -95,63 +97,11 @@ void NEXTION_SendNumber(char *obj, int number) {
     free(buffer); // Libera la memoria asignada al buffer
 }
 
-void procesarReceivedCan(uint16_t valor) {
-    // Generar un número aleatorio entre 0 y 9
-    int random_value = rand() % 100;
-    int rev = rand() % 9000;
+void NEXTION_Alert(int color) {
 
-    // Convertir el número aleatorio a una cadena de caracteres
-    char text[4]; // Suponiendo que los valores aleatorios solo van de 0 a 9
-    sprintf(text, "%d", random_value);
+	uint8_t *buffer = malloc(50 * sizeof(char));
 
-    // Añadir un retraso de 10ms
-    HAL_Delay(10);
-
-    switch(valor) {
-        case 0x110:
-        	NEXTION_SendText_sin_unidades("speed", text);
-            break;
-        case 0x120:
-        	NEXTION_SendText_unidades("voltage", text, "V");
-            break;
-        case 0x655:
-        	NEXTION_SendNumber("brakePedal", random_value);
-            break;
-        case 0x640:
-        	NEXTION_SendText_unidades("revValue", text, " RPM");
-            break;
-        case 0x641:
-        	NEXTION_SendText_sin_unidades("gear", text);
-            break;
-        case 0x642:
-        	NEXTION_SendNumber("acePedal", random_value);
-            break;
-        case 0x643:
-        	NEXTION_SendText_unidades("brake1", text, "\xB0");
-            break;
-        case 0x644:
-        	NEXTION_SendText_unidades("brake2", text, "\xB0");
-            break;
-        case 0x645:
-        	NEXTION_SendText_unidades("brake3", text, "\xB0");
-            break;
-        case 0x646:
-        	NEXTION_SendText_unidades("brake4", text, "\xB0");
-            break;
-        case 0x647:
-        	NEXTION_SendText_unidades("engineTemp", text, "\xB0");
-            break;
-        case 0x648:
-        	ledsRevoluciones(rev);
-            break;
-        default:
-            break;
-    }
-}
-
-void NEXTION_Alert(void) {
     for (int i = 0; i < 9; i++) {
-        uint8_t *buffer = malloc(50 * sizeof(char));
 
         // Formatea y transmite el mensaje para el elemento actual
         int len = sprintf((char *)buffer, "%s.bco=%d", array_elementos_a_poner_rojo_por_alerta[i], color);
@@ -164,6 +114,71 @@ void NEXTION_Alert(void) {
     }
 }
 
+
+void procesarReceivedCan(uint16_t valor) {
+    // Generar un número aleatorio entre 0 y 9
+    int random_value = rand() % 100;
+    int rev = rand() % 9000;
+
+    char text[4]; // Suponiendo que los valores aleatorios solo van de 0 a 9
+    sprintf(text, "%d", random_value);
+
+    // Añadir un retraso de 10ms
+    HAL_Delay(10);
+
+    switch(valor) {
+        case 0x110:
+        	NEXTION_SendText("speed", text, NULL);
+
+            break;
+        case 0x120:
+        	NEXTION_SendText("voltage", text, "V");
+        	if (random_value < 85 && random_value > 0) {
+        	    NEXTION_Alert(0);
+        	} else if (random_value < 98) {
+        	    NEXTION_Alert(63488);
+        	}
+            break;
+        case 0x655:
+        	NEXTION_SendNumber("brakePedal", random_value);
+            break;
+        case 0x640:
+        	NEXTION_SendText("revValue", text, " RPM");
+            break;
+        case 0x641:
+        	NEXTION_SendText("gear", text, NULL);
+            break;
+        case 0x642:
+        	NEXTION_SendNumber("acePedal", random_value);
+            break;
+        case 0x643:
+        	NEXTION_SendText("brake1", text, "\xB0");
+            break;
+        case 0x644:
+        	NEXTION_SendText("brake2", text, "\xB0");
+            break;
+        case 0x645:
+        	NEXTION_SendText("brake3", text, "\xB0");
+            break;
+        case 0x646:
+        	NEXTION_SendText("brake4", text, "\xB0");
+            break;
+        case 0x647:
+        	NEXTION_SendText("engineTemp", text, "\xB0");
+        	if (random_value < 85 && random_value > 0) {
+        	    NEXTION_Alert(0);
+        	} else if (random_value < 98) {
+        	    NEXTION_Alert(63488);
+        	}
+            break;
+            break;
+        case 0x648:
+        	ledsRevoluciones(rev);
+            break;
+        default:
+            break;
+    }
+}
 
 void ledsRevoluciones(int val) {
     int resultado1 = 0;
@@ -217,50 +232,34 @@ void NEXTION_SendPageChange(char *page_name) {
 int main(void)
 {
 
-	// Semilla para la generación de números aleatorios
-	srand(time(NULL));
-  /* USER CODE BEGIN 1 */
-
-  /* USER CODE END 1 */
-
-  /* MCU Configuration--------------------------------------------------------*/
+  // Semilla para la generación de números aleatorios
+  srand(time(NULL));
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
 
-  /* USER CODE BEGIN Init */
-
-  /* USER CODE END Init */
-
   /* Configure the system clock */
   SystemClock_Config();
-
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_USART1_UART_Init();
-  /* USER CODE BEGIN 2 */
-  //	  NEXTION_Alert();
-	NEXTION_SendPageChange("page0");
-<<<<<<< HEAD
-    HAL_Delay(2800);
-=======
-      HAL_Delay(4000);
->>>>>>> 51f84d24cea1ba433ff42396f640eec8f264c713
-  	NEXTION_SendPageChange("page1");
-  /* USER CODE END 2 */
+
+  NEXTION_SendPageChange("page0");
+  HAL_Delay(2800);
+
+  NEXTION_SendPageChange("page1");
+
+  //Inicializar interfaz a negro (por si se quedó con estilos a rojo por NEXTION_Alert())
+  NEXTION_Alert(0);
 
   /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
   while (1)
   {
-    /* USER CODE END WHILE */
-
-//	  NEXTION_Alert();
+	int randoom_value = 2;
+	char text[20]; // Debes asegurarte de que el tamaño sea suficiente para almacenar el texto
+	sprintf(text, "%d", randoom_value);
 
 	// Generar valor aleatorio entre 0 y 9
 	int random_value = rand() % 12;
@@ -307,9 +306,8 @@ int main(void)
 			break;
 	}
 
-    /* USER CODE BEGIN 3 */
   }
-  /* USER CODE END 3 */
+
 }
 
 /**
