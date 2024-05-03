@@ -1688,8 +1688,13 @@ int main(void)
 	NEXTION_SendPageChange("page0");
  8001220:	483c      	ldr	r0, [pc, #240]	@ (8001314 <main+0x120>)
  8001222:	f7ff ffbd 	bl	80011a0 <NEXTION_SendPageChange>
+<<<<<<< HEAD
     HAL_Delay(2800);
  8001226:	f44f 602f 	mov.w	r0, #2800	@ 0xaf0
+=======
+      HAL_Delay(4000);
+ 8001226:	f44f 607a 	mov.w	r0, #4000	@ 0xfa0
+>>>>>>> 51f84d24cea1ba433ff42396f640eec8f264c713
  800122a:	f000 fbf5 	bl	8001a18 <HAL_Delay>
   	NEXTION_SendPageChange("page1");
  800122e:	483a      	ldr	r0, [pc, #232]	@ (8001318 <main+0x124>)

@@ -246,7 +246,11 @@ int main(void)
   /* USER CODE BEGIN 2 */
   //	  NEXTION_Alert();
 	NEXTION_SendPageChange("page0");
+<<<<<<< HEAD
     HAL_Delay(2800);
+=======
+      HAL_Delay(4000);
+>>>>>>> 51f84d24cea1ba433ff42396f640eec8f264c713
   	NEXTION_SendPageChange("page1");
   /* USER CODE END 2 */
 
