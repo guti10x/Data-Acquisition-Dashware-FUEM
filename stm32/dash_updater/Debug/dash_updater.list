@@ -1340,7 +1340,7 @@ void procesarReceivedCan(uint16_t valor) {
  8000f9a:	f7ff ff3d 	bl	8000e18 <NEXTION_SendNumber>
             break;
  8000f9e:	e02c      	b.n	8000ffa <procesarReceivedCan+0x18a>
-        	NEXTION_SendText_unidades("brake1", text, "C");
+        	NEXTION_SendText_unidades("brake1", text, "\xB0");
  8000fa0:	f107 030c 	add.w	r3, r7, #12
  8000fa4:	4a22      	ldr	r2, [pc, #136]	@ (8001030 <procesarReceivedCan+0x1c0>)
  8000fa6:	4619      	mov	r1, r3
@@ -1348,7 +1348,7 @@ void procesarReceivedCan(uint16_t valor) {
  8000faa:	f7ff ff05 	bl	8000db8 <NEXTION_SendText_unidades>
             break;
  8000fae:	e024      	b.n	8000ffa <procesarReceivedCan+0x18a>
-        	NEXTION_SendText_unidades("brake2", text, "C");
+        	NEXTION_SendText_unidades("brake2", text, "\xB0");
  8000fb0:	f107 030c 	add.w	r3, r7, #12
  8000fb4:	4a1e      	ldr	r2, [pc, #120]	@ (8001030 <procesarReceivedCan+0x1c0>)
  8000fb6:	4619      	mov	r1, r3
@@ -1356,7 +1356,7 @@ void procesarReceivedCan(uint16_t valor) {
  8000fba:	f7ff fefd 	bl	8000db8 <NEXTION_SendText_unidades>
             break;
  8000fbe:	e01c      	b.n	8000ffa <procesarReceivedCan+0x18a>
-        	NEXTION_SendText_unidades("brake3", text, "C");
+        	NEXTION_SendText_unidades("brake3", text, "\xB0");
  8000fc0:	f107 030c 	add.w	r3, r7, #12
  8000fc4:	4a1a      	ldr	r2, [pc, #104]	@ (8001030 <procesarReceivedCan+0x1c0>)
  8000fc6:	4619      	mov	r1, r3
@@ -1364,7 +1364,7 @@ void procesarReceivedCan(uint16_t valor) {
  8000fca:	f7ff fef5 	bl	8000db8 <NEXTION_SendText_unidades>
             break;
  8000fce:	e014      	b.n	8000ffa <procesarReceivedCan+0x18a>
-        	NEXTION_SendText_unidades("brake4", text, "C");
+        	NEXTION_SendText_unidades("brake4", text, "\xB0");
  8000fd0:	f107 030c 	add.w	r3, r7, #12
  8000fd4:	4a16      	ldr	r2, [pc, #88]	@ (8001030 <procesarReceivedCan+0x1c0>)
  8000fd6:	4619      	mov	r1, r3
@@ -1372,7 +1372,7 @@ void procesarReceivedCan(uint16_t valor) {
  8000fda:	f7ff feed 	bl	8000db8 <NEXTION_SendText_unidades>
             break;
  8000fde:	e00c      	b.n	8000ffa <procesarReceivedCan+0x18a>
-        	NEXTION_SendText_unidades("engineTemp", text, "C");
+        	NEXTION_SendText_unidades("engineTemp", text, "\xB0");
  8000fe0:	f107 030c 	add.w	r3, r7, #12
  8000fe4:	4a12      	ldr	r2, [pc, #72]	@ (8001030 <procesarReceivedCan+0x1c0>)
  8000fe6:	4619      	mov	r1, r3
@@ -1688,8 +1688,8 @@ int main(void)
 	NEXTION_SendPageChange("page0");
  8001220:	483c      	ldr	r0, [pc, #240]	@ (8001314 <main+0x120>)
  8001222:	f7ff ffbd 	bl	80011a0 <NEXTION_SendPageChange>
-      HAL_Delay(4000);
- 8001226:	f44f 607a 	mov.w	r0, #4000	@ 0xfa0
+    HAL_Delay(2800);
+ 8001226:	f44f 602f 	mov.w	r0, #2800	@ 0xaf0
  800122a:	f000 fbf5 	bl	8001a18 <HAL_Delay>
   	NEXTION_SendPageChange("page1");
  800122e:	483a      	ldr	r0, [pc, #232]	@ (8001318 <main+0x124>)

@@ -127,19 +127,19 @@ void procesarReceivedCan(uint16_t valor) {
         	NEXTION_SendNumber("acePedal", random_value);
             break;
         case 0x643:
-        	NEXTION_SendText_unidades("brake1", text, "C");
+        	NEXTION_SendText_unidades("brake1", text, "\xB0");
             break;
         case 0x644:
-        	NEXTION_SendText_unidades("brake2", text, "C");
+        	NEXTION_SendText_unidades("brake2", text, "\xB0");
             break;
         case 0x645:
-        	NEXTION_SendText_unidades("brake3", text, "C");
+        	NEXTION_SendText_unidades("brake3", text, "\xB0");
             break;
         case 0x646:
-        	NEXTION_SendText_unidades("brake4", text, "C");
+        	NEXTION_SendText_unidades("brake4", text, "\xB0");
             break;
         case 0x647:
-        	NEXTION_SendText_unidades("engineTemp", text, "C");
+        	NEXTION_SendText_unidades("engineTemp", text, "\xB0");
             break;
         case 0x648:
         	ledsRevoluciones(rev);
@@ -246,7 +246,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   //	  NEXTION_Alert();
 	NEXTION_SendPageChange("page0");
-      HAL_Delay(4000);
+    HAL_Delay(2800);
   	NEXTION_SendPageChange("page1");
   /* USER CODE END 2 */
 
