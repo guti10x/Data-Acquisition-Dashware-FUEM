@@ -1,21 +1,3 @@
-/* USER CODE BEGIN Header */
-/**
-  **********
-  * @file           : main.c
-  * @brief          : Main program body
-  **********
-  * @attention
-  *
-  * Copyright (c) 2024 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  **********
-  */
-/* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "math.h"
@@ -24,50 +6,25 @@
 #include <stdint.h>
 #include <time.h>
 
-
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-
-/* USER CODE END Includes */
-
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
-
-/* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
-
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
 
-/* USER CODE BEGIN PV */
-
-/* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART1_UART_Init(void);
-/* USER CODE BEGIN PFP */
 
-/* USER CODE END PFP */
 
 /* VARIABLES ---------------------------------------------------------*/
 // Elementos en la interfaz a modificar en la interfaz si se supera threshold
-const char *array_elementos_a_poner_rojo_por_alerta[] = {"speed", "revValue", "gear", "brake1", "brake2", "brake3", "brake4", "voltage","engineTemp",}; //elelementos d el ainterfaz a actualizar por alerta
+const char *array_elementos_a_poner_rojo_por_alerta[] = {"speed", "revValue", "gear", "brake1", "brake2", "brake3", "brake4"}; //elelementos d el ainterfaz a actualizar por alerta
 
 //Variable para indicar el final del mensaje
 uint8_t Cmd_End[3]= {0xff,0xff,0xff};
+
 
 // Función para actualizar objeto obj de la interfaz con un valor text
 void NEXTION_SendText(char *obj, char *text, char *units) {
@@ -88,7 +45,7 @@ void NEXTION_SendText(char *obj, char *text, char *units) {
     free(buffer); // Libera la memoria asignada al buffer
 }
 
-// Para baras laterales de frenado y aceleración + barra superiro de revoluciones
+// Actualiza valores de las barras de frenado, aceleración y revoluciones
 void NEXTION_SendNumber(char *obj, int number) {
     uint8_t *buffer = malloc(50 * sizeof(char)); // Reserva memoria para un buffer de 50 bytes
     int len = sprintf((char *)buffer, "%s.val=%d", obj, number); // Inicializa el buffer con el objeto y el valor a inicializar
@@ -97,90 +54,8 @@ void NEXTION_SendNumber(char *obj, int number) {
     free(buffer); // Libera la memoria asignada al buffer
 }
 
-void NEXTION_Alert(int color) {
-
-	uint8_t *buffer = malloc(50 * sizeof(char));
-
-    for (int i = 0; i < 9; i++) {
-
-        // Formatea y transmite el mensaje para el elemento actual
-        int len = sprintf((char *)buffer, "%s.bco=%d", array_elementos_a_poner_rojo_por_alerta[i], color);
-
-        HAL_UART_Transmit(&huart1, buffer, len, 1000);
-        HAL_UART_Transmit(&huart1, Cmd_End, 3, 100);
-
-        // Libera el buffer
-        free(buffer);
-    }
-}
-
-
-void procesarReceivedCan(uint16_t valor) {
-    // Generar un número aleatorio entre 0 y 9
-    int random_value = rand() % 100;
-    int rev = rand() % 9000;
-
-    char text[4]; // Suponiendo que los valores aleatorios solo van de 0 a 9
-    sprintf(text, "%d", random_value);
-
-    // Añadir un retraso de 10ms
-    HAL_Delay(10);
-
-    switch(valor) {
-        case 0x110:
-        	NEXTION_SendText("speed", text, NULL);
-
-            break;
-        case 0x120:
-        	NEXTION_SendText("voltage", text, "V");
-        	if (random_value < 85 && random_value > 0) {
-        	    NEXTION_Alert(0);
-        	} else if (random_value < 98) {
-        	    NEXTION_Alert(63488);
-        	}
-            break;
-        case 0x655:
-        	NEXTION_SendNumber("brakePedal", random_value);
-            break;
-        case 0x640:
-        	NEXTION_SendText("revValue", text, " RPM");
-            break;
-        case 0x641:
-        	NEXTION_SendText("gear", text, NULL);
-            break;
-        case 0x642:
-        	NEXTION_SendNumber("acePedal", random_value);
-            break;
-        case 0x643:
-        	NEXTION_SendText("brake1", text, "\xB0");
-            break;
-        case 0x644:
-        	NEXTION_SendText("brake2", text, "\xB0");
-            break;
-        case 0x645:
-        	NEXTION_SendText("brake3", text, "\xB0");
-            break;
-        case 0x646:
-        	NEXTION_SendText("brake4", text, "\xB0");
-            break;
-        case 0x647:
-        	NEXTION_SendText("engineTemp", text, "\xB0");
-        	if (random_value < 85 && random_value > 0) {
-        	    NEXTION_Alert(0);
-        	} else if (random_value < 98) {
-        	    NEXTION_Alert(63488);
-        	}
-            break;
-            break;
-        case 0x648:
-        	ledsRevoluciones(rev);
-            break;
-        default:
-            break;
-    }
-}
-
-void ledsRevoluciones(int val) {
+// Función para actualizar los indicadores de revoluviones del dash
+void NEXTION_Send_Revs(int val) {
     int resultado1 = 0;
     int resultado2 = 0;
     int resultado3 = 0;
@@ -210,6 +85,7 @@ void ledsRevoluciones(int val) {
     NEXTION_SendNumber("led3", resultado3);
 }
 
+//Función para realizar la transicción de la landing view al dash
 void NEXTION_SendPageChange(char *page_name) {
     // Reserva memoria para un buffer de 50 bytes
     uint8_t *buffer = malloc(50 * sizeof(char));
@@ -223,12 +99,120 @@ void NEXTION_SendPageChange(char *page_name) {
     free(buffer);
 }
 
-/* USER CODE END 0 */
+//Función para actualizar todos los colores de los elementos a rojo por temperatura del motor o voltaje bateria elevados
+void NEXTION_Alert(int color) {
 
-/**
-  * @brief  The application entry point.
-  * @retval int
-  */
+	uint8_t *buffer = malloc(50 * sizeof(char));
+
+    for (int i = 0; i < 7; i++) {
+
+        // Formatea y transmite el mensaje para el elemento actual
+        int len = sprintf((char *)buffer, "%s.bco=%d", array_elementos_a_poner_rojo_por_alerta[i], color);
+
+        HAL_UART_Transmit(&huart1, buffer, len, 1000);
+        HAL_UART_Transmit(&huart1, Cmd_End, 3, 100);
+
+        // Libera el buffer
+        free(buffer);
+    }
+}
+
+//Función para actualizar color estado de voltaje bateria y temperatura del motor
+void NEXTION_estado_color(char *obj, int color) {
+
+	uint8_t *buffer = malloc(50 * sizeof(char));
+
+	// Formatea y transmite el mensaje para el elemento actual
+	int len = sprintf((char *)buffer, "%s.bco=%d", obj, color);
+
+    HAL_UART_Transmit(&huart1, buffer, len, 1000);
+    HAL_UART_Transmit(&huart1, Cmd_End, 3, 100);
+
+    // Libera el buffer
+    free(buffer);
+}
+
+
+
+void procesarReceivedCan(uint16_t valor) {
+    // Generar un número aleatorio entre 0 y 9
+    int random_value = rand() % 100;
+    int rev = rand() % 9000;
+
+    char text[4]; // Suponiendo que los valores aleatorios solo van de 0 a 9
+    sprintf(text, "%d", random_value);
+
+    // Añadir un retraso de 10ms
+    HAL_Delay(10);
+
+    switch(valor) {
+        case 0x110:
+        	NEXTION_SendText("speed", text, NULL);
+
+            break;
+        case 0x120:
+        	NEXTION_SendText("voltage", text, "V");
+        	if (random_value > 0 && random_value <= 50) {
+        	    NEXTION_Alert(0); //black
+        	    NEXTION_estado_color("voltage", 36609);  //green
+        	} else if (random_value > 50 && random_value <= 80) {
+        	    NEXTION_Alert(0); //black
+        	    NEXTION_estado_color("voltage", 64520); //orange
+        	} else if (random_value > 91) {
+        	    NEXTION_Alert(63488); // red
+        	    NEXTION_estado_color("voltage", 63488); //red
+        	}
+
+            break;
+
+        case 0x655:
+        	NEXTION_SendNumber("brakePedal", random_value);
+            break;
+        case 0x640:
+        	NEXTION_SendText("revValue", text, " RPM");
+            break;
+        case 0x641:
+        	NEXTION_SendText("gear", text, NULL);
+            break;
+        case 0x642:
+        	NEXTION_SendNumber("acePedal", random_value);
+            break;
+        case 0x643:
+        	NEXTION_SendText("brake1", text, "\xB0");
+            break;
+        case 0x644:
+        	NEXTION_SendText("brake2", text, "\xB0");
+            break;
+        case 0x645:
+        	NEXTION_SendText("brake3", text, "\xB0");
+            break;
+        case 0x646:
+        	NEXTION_SendText("brake4", text, "\xB0");
+            break;
+        case 0x647:
+        	NEXTION_SendText("engineTemp", text, "\xB0");
+        	if (random_value > 0 && random_value <= 50) {
+        	    NEXTION_Alert(0); //black
+        	    NEXTION_estado_color("engineTemp", 36609);  //green
+        	} else if (random_value > 50 && random_value <= 80) {
+        	    NEXTION_Alert(0);
+        	    NEXTION_estado_color("engineTemp", 64520); //orange
+        	} else if (random_value > 91) {
+        	    NEXTION_Alert(63488); // red
+        	    NEXTION_estado_color("engineTemp", 63488); // red
+        	}
+
+			break;
+
+        case 0x648:
+        	NEXTION_Send_Revs(rev);
+            break;
+        default:
+            break;
+    }
+}
+
+
 int main(void)
 {
 
@@ -257,9 +241,11 @@ int main(void)
   /* Infinite loop */
   while (1)
   {
+
+	HAL_Delay(400);
 	int randoom_value = 2;
-	char text[20]; // Debes asegurarte de que el tamaño sea suficiente para almacenar el texto
-	sprintf(text, "%d", randoom_value);
+	char text[20]; // Declarar variable donde alamcenar la conversión
+	sprintf(text, "%d", randoom_value); //Inicializar la conversión
 
 	// Generar valor aleatorio entre 0 y 9
 	int random_value = rand() % 12;
