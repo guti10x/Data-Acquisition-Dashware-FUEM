@@ -5,134 +5,17 @@
 #include "stdlib.h"
 #include <stdint.h>
 #include <time.h>
+#include "nextion_comunication.h"
 
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
-
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART1_UART_Init(void);
-
-
-/* VARIABLES ---------------------------------------------------------*/
-// Elementos en la interfaz a modificar en la interfaz si se supera threshold
-const char *array_elementos_a_poner_rojo_por_alerta[] = {"speed", "revValue", "gear", "brake1", "brake2", "brake3", "brake4"}; //elelementos d el ainterfaz a actualizar por alerta
-
-//Variable para indicar el final del mensaje
-uint8_t Cmd_End[3]= {0xff,0xff,0xff};
-
-
-// Función para actualizar objeto obj de la interfaz con un valor text
-void NEXTION_SendText(char *obj, char *text, char *units) {
-
-	uint8_t *buffer = malloc(50 * sizeof(char)); // Reserva memoria para un buffer de 50 bytes
-
-	int len = 0;
-
-	if (units == NULL || units[0] == '\0') {
-		len = sprintf((char *)buffer, "%s.txt=\"%s\"", obj, text);  // Agregar el texto al objeto
-
-	}else {
-		len = sprintf((char *)buffer, "%s.txt=\"%s%s\"", obj, text, units); // Agrega las unidades al texto del objeto
-	}
-
-    HAL_UART_Transmit(&huart1, buffer, len, 1000); // Transmite el buffer a través de UART
-    HAL_UART_Transmit(&huart1, Cmd_End, 3, 100); // Transmite Cmd_End para indicar que finalizó el mensaje
-    free(buffer); // Libera la memoria asignada al buffer
-}
-
-// Actualiza valores de las barras de frenado, aceleración y revoluciones
-void NEXTION_SendNumber(char *obj, int number) {
-    uint8_t *buffer = malloc(50 * sizeof(char)); // Reserva memoria para un buffer de 50 bytes
-    int len = sprintf((char *)buffer, "%s.val=%d", obj, number); // Inicializa el buffer con el objeto y el valor a inicializar
-    HAL_UART_Transmit(&huart1, buffer, len, 1000); // Transmite el buffer a través de UART
-    HAL_UART_Transmit(&huart1, Cmd_End, 3, 100); // Transmite Cmd_End para indicar que finalizó el mensaje
-    free(buffer); // Libera la memoria asignada al buffer
-}
-
-// Función para actualizar los indicadores de revoluviones del dash
-void NEXTION_Send_Revs(int val) {
-    int resultado1 = 0;
-    int resultado2 = 0;
-    int resultado3 = 0;
-
-    if (val >= 0 && val < 3000) {
-        resultado1 = val / 30.0; // Rango 0-3000
-        resultado1 = (resultado1 + 10) / 20 * 20;
-        resultado2 = 0;
-        resultado3 = 0;
-    } else if (val >= 3000 && val < 6000) {
-        resultado1 = 100;
-        resultado2 = (val - 3000) / 30.0; // Rango 3000-6000
-        resultado2 = (resultado2 + 10) / 20 * 20;
-
-        resultado3 = 0;
-    } else if (val >= 6000 && val <= 9000) {
-        resultado1 = 100;
-        resultado2 = 100;
-        resultado3 = (val - 6000) / 30.0; // Rango 6000-9000
-        resultado3 = (resultado3 + 10) / 20 * 20;
-
-    }
-
-    // Envía los resultados a las barras correspondientes
-    NEXTION_SendNumber("led1", resultado1);
-    NEXTION_SendNumber("led2", resultado2);
-    NEXTION_SendNumber("led3", resultado3);
-}
-
-//Función para realizar la transicción de la landing view al dash
-void NEXTION_SendPageChange(char *page_name) {
-    // Reserva memoria para un buffer de 50 bytes
-    uint8_t *buffer = malloc(50 * sizeof(char));
-    // Inicializa el buffer con la instrucción para cambiar de página
-    int len = sprintf((char *)buffer, "page %s", page_name);
-    // Transmite el buffer a través de UART
-    HAL_UART_Transmit(&huart1, buffer, len, 1000);
-    // Transmite un comando para indicar el final del mensaje
-    HAL_UART_Transmit(&huart1, Cmd_End, 3, 100);
-    // Libera la memoria asignada al buffer
-    free(buffer);
-}
-
-//Función para actualizar todos los colores de los elementos a rojo por temperatura del motor o voltaje bateria elevados
-void NEXTION_Alert(int color) {
-
-	uint8_t *buffer = malloc(50 * sizeof(char));
-
-    for (int i = 0; i < 7; i++) {
-
-        // Formatea y transmite el mensaje para el elemento actual
-        int len = sprintf((char *)buffer, "%s.bco=%d", array_elementos_a_poner_rojo_por_alerta[i], color);
-
-        HAL_UART_Transmit(&huart1, buffer, len, 1000);
-        HAL_UART_Transmit(&huart1, Cmd_End, 3, 100);
-
-        // Libera el buffer
-        free(buffer);
-    }
-}
-
-//Función para actualizar color estado de voltaje bateria y temperatura del motor
-void NEXTION_estado_color(char *obj, int color) {
-
-	uint8_t *buffer = malloc(50 * sizeof(char));
-
-	// Formatea y transmite el mensaje para el elemento actual
-	int len = sprintf((char *)buffer, "%s.bco=%d", obj, color);
-
-    HAL_UART_Transmit(&huart1, buffer, len, 1000);
-    HAL_UART_Transmit(&huart1, Cmd_End, 3, 100);
-
-    // Libera el buffer
-    free(buffer);
-}
-
-
 
 void procesarReceivedCan(uint16_t valor) {
     // Generar un número aleatorio entre 0 y 9
@@ -147,65 +30,65 @@ void procesarReceivedCan(uint16_t valor) {
 
     switch(valor) {
         case 0x110:
-        	NEXTION_SendText("speed", text, NULL);
+        	NEXTION_SendText(&huart1,"speed", text, NULL);
 
             break;
         case 0x120:
-        	NEXTION_SendText("voltage", text, "V");
+        	NEXTION_SendText(&huart1,"voltage", text, "V");
         	if (random_value > 0 && random_value <= 50) {
-        	    NEXTION_Alert(0); //black
-        	    NEXTION_estado_color("voltage", 36609);  //green
+        	    NEXTION_Alert(&huart1, 0); //black
+        	    NEXTION_estado_color(&huart1, "voltage", 36609);  //green
         	} else if (random_value > 50 && random_value <= 80) {
-        	    NEXTION_Alert(0); //black
-        	    NEXTION_estado_color("voltage", 64520); //orange
+        	    NEXTION_Alert(&huart1, 0); //black
+        	    NEXTION_estado_color(&huart1, "voltage", 64520); //orange
         	} else if (random_value > 91) {
-        	    NEXTION_Alert(63488); // red
-        	    NEXTION_estado_color("voltage", 63488); //red
+        	    NEXTION_Alert(&huart1, 63488); // red
+        	    NEXTION_estado_color(&huart1, "voltage", 63488); //red
         	}
 
             break;
 
         case 0x655:
-        	NEXTION_SendNumber("brakePedal", random_value);
+        	NEXTION_SendNumber(&huart1, "brakePedal", random_value);
             break;
         case 0x640:
-        	NEXTION_SendText("revValue", text, " RPM");
+        	NEXTION_SendText(&huart1,"revValue", text, " RPM");
             break;
         case 0x641:
-        	NEXTION_SendText("gear", text, NULL);
+        	NEXTION_SendText(&huart1,"gear", text, NULL);
             break;
         case 0x642:
-        	NEXTION_SendNumber("acePedal", random_value);
+        	NEXTION_SendNumber(&huart1, "acePedal", random_value);
             break;
         case 0x643:
-        	NEXTION_SendText("brake1", text, "\xB0");
+        	NEXTION_SendText(&huart1,"brake1", text, "\xB0");
             break;
         case 0x644:
-        	NEXTION_SendText("brake2", text, "\xB0");
+        	NEXTION_SendText(&huart1,"brake2", text, "\xB0");
             break;
         case 0x645:
-        	NEXTION_SendText("brake3", text, "\xB0");
+        	NEXTION_SendText(&huart1,"brake3", text, "\xB0");
             break;
         case 0x646:
-        	NEXTION_SendText("brake4", text, "\xB0");
+        	NEXTION_SendText(&huart1,"brake4", text, "\xB0");
             break;
         case 0x647:
-        	NEXTION_SendText("engineTemp", text, "\xB0");
+        	NEXTION_SendText(&huart1,"engineTemp", text, "\xB0");
         	if (random_value > 0 && random_value <= 50) {
-        	    NEXTION_Alert(0); //black
-        	    NEXTION_estado_color("engineTemp", 36609);  //green
+        	    NEXTION_Alert(&huart1,0); //black
+        	    NEXTION_estado_color(&huart1, "engineTemp", 36609);  //green
         	} else if (random_value > 50 && random_value <= 80) {
-        	    NEXTION_Alert(0);
-        	    NEXTION_estado_color("engineTemp", 64520); //orange
+        	    NEXTION_Alert(&huart1,0);
+        	    NEXTION_estado_color(&huart1, "engineTemp", 64520); //orange
         	} else if (random_value > 91) {
-        	    NEXTION_Alert(63488); // red
-        	    NEXTION_estado_color("engineTemp", 63488); // red
+        	    NEXTION_Alert(&huart1,63488); // red
+        	    NEXTION_estado_color(&huart1, "engineTemp", 63488); // red
         	}
 
 			break;
 
         case 0x648:
-        	NEXTION_Send_Revs(rev);
+        	NEXTION_Send_Revs(&huart1, rev);
             break;
         default:
             break;
@@ -230,13 +113,14 @@ int main(void)
   MX_USART2_UART_Init();
   MX_USART1_UART_Init();
 
-  NEXTION_SendPageChange("page0");
+  //Mostrar landing view
+  NEXTION_SendPageChange(&huart1,"page0");
   HAL_Delay(2800);
-
-  NEXTION_SendPageChange("page1");
+  //Mostrar dash view
+  NEXTION_SendPageChange(&huart1,"page1");
 
   //Inicializar interfaz a negro (por si se quedó con estilos a rojo por NEXTION_Alert())
-  NEXTION_Alert(0);
+  NEXTION_Alert(&huart1, 0);
 
   /* Infinite loop */
   while (1)
