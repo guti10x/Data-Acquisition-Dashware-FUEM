@@ -8,7 +8,7 @@ Este repositorio contiene el código fuente para la interfaz de pantalla Nextion
 ## 1. **Interfaz Nextion:**
 - **Carpeta:** `Interfaz_Nextion`
 - **Descripción:** contiene el código y los recursos, incluido el archivo .HMI, para la interfaz gráfica desarrollada en Nextion Editor.
-- **Interfaz:** ![dash_interface_FUEM_V5 (1)](https://github.com/guti10x/dashware_FUEM/assets/82153822/d5006cec-d62b-4385-8916-11815aa2fb6d)
+- **Interfaz:** ![interfazz_VW](https://github.com/guti10x/dashware_FUEM/assets/82153822/a8ad2718-c9cc-43a6-8d26-2878875c4afd)
 - **Instrucciones para realizar cambios:**
 
      1. Abra el archivo .HMI en Nextion Editor.
