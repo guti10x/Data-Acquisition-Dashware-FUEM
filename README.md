@@ -1,10 +1,9 @@
 # Dashboard FUEM formula student car 
 
 Este repositorio contiene el código fuente para la interfaz de pantalla Nextion junto con el firmware para controlarla, tanto con Arduino Uno como con STM32.
-
+![dashware_FUEM](https://github.com/guti10x/dashware_FUEM/assets/82153822/90b68f4b-f98e-4ba7-a315-11cf62342b53)
 
 # Contenido del Repositorio:
-
 ## 1. **Interfaz Nextion:**
 - **Carpeta:** `Interfaz_Nextion`
 - **Descripción:** contiene el código y los recursos, incluido el archivo .HMI, para la interfaz gráfica desarrollada en Nextion Editor.
