@@ -117,6 +117,12 @@ int main(void)
   NEXTION_SendPageChange(&huart1,"page0");
   HAL_Delay(2800);
   //Mostrar dash view
+  NEXTION_SendPageChange(&huart1,"page2");
+  HAL_Delay(3400);
+  //Mostrar dash view
+  NEXTION_SendPageChange(&huart1,"page3");
+  HAL_Delay(2800);
+  //Mostrar dash view
   NEXTION_SendPageChange(&huart1,"page1");
 
   //Inicializar interfaz a negro (por si se quedó con estilos a rojo por NEXTION_Alert())
