@@ -1,7 +1,13 @@
 # Dashboard FUEM formula student car 
 
+La función principal del daswhare consiste en mostrar información relevante al piloto sobre la velocidad, la marcha y las revoluciones a las que circula el coche, así como la temperatura de los frenos, la temperatura del motor, el voltaje de la batería y la aceleración y frenado del coche durante la conducción.
+
+Además, permite mostrar alertas de forma visual y sencilla al piloto cuando es necesario detener el monoplaza debido a lecturas peligrosas de los sensores del vehículo, como una temperatura muy elevada del motor o un voltaje de la batería inadecuado.
+
 Este repositorio contiene el código fuente para la interfaz de pantalla Nextion junto con el firmware para controlarla, tanto con Arduino Uno como con STM32.
-![dashware_FUEM](https://github.com/guti10x/dashware_FUEM/assets/82153822/90b68f4b-f98e-4ba7-a315-11cf62342b53)
+
+![dashware_FUEM](https://github.com/guti10x/dashware_FUEM/assets/82153822/a761835d-2f4e-4f01-bc72-2d6ee159b520)
+![renderV2](https://github.com/guti10x/dashware_FUEM/assets/82153822/01db5d63-2d34-4cf3-86f5-d116d4691659)
 
 # Contenido del Repositorio:
 ## 1. **Interfaz Nextion:**
