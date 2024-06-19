@@ -1,21 +1,3 @@
-/* USER CODE BEGIN Header */
-/**
-  ******************************************************************************
-  * @file           : main.c
-  * @brief          : Main program body
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2024 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
-/* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
@@ -25,37 +7,13 @@
 
 #include "MPU_6050.h"
 
-
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-
-/* USER CODE END Includes */
-
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
-
-/* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-
-/* USER CODE END PM */
-
-/* Private variables ---------------------------------------------------------*/
+/* Connectivity variables ---------------------------------------------------------*/
 CAN_HandleTypeDef hcan;
 
 I2C_HandleTypeDef hi2c1;
 
 UART_HandleTypeDef huart3;
 
-/* USER CODE BEGIN PV */
-
-/* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
@@ -63,61 +21,151 @@ static void MX_GPIO_Init(void);
 static void MX_CAN_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_USART3_UART_Init(void);
-/* USER CODE BEGIN PFP */
-/* USER CODE BEGIN PFP */
-
-/* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
 
-/* USER CODE END 0 */
+// Configuración de CAN
+CAN_TxHeaderTypeDef TxHeader;  // Configuración parámetros del mensaje CAN a transmitir
+CAN_RxHeaderTypeDef RxHeader;  // Configuración parámetros del mensaje CAN a recibir
+uint32_t TxMailbox;  // Variable para almacenar el identificador del mailbox utilizado para la transmisión de mensajes CAN
+uint8_t TxData[8];   // Variable para almacenar datos a transmitir por CAN
+uint8_t RxData[8];   // Variable para almacenar datos recibidos por CAN
+uint8_t RxFlag118 = 0;  // Indicar recepción de mensaje CAN con id 0x118
+uint8_t RxFlag649 = 0;  // Indicar recepción de mensaje CAN con id 0x649
+uint8_t Id = 0;  // Identificador para diferenciar mensajes
+uint8_t countNex = 0;  // Contador
+
+// Datos del acelerómetro
+int16_t acc_x;  // Valor bruto del acelerómetro en el eje x
+int16_t acc_y;  // Valor bruto del acelerómetro en el eje y
+int16_t acc_z;  // Valor bruto del acelerómetro en el eje z
+float x_acceleration;  // Valor calculado de la aceleración en el eje x
+float y_acceleration;  // Valor calculado de la aceleración en el eje y
+float z_acceleration;  // Valor calculado de la aceleración en el eje z
+uint8_t acx_data[2];  // aceleración en el eje x en formato texto
+uint8_t acy_data[2];  // Aceleración en el eje y en formato texto
+uint8_t acz_data[2];  // Aceleración en el eje z en formato texto
+
+// Datos de temperatura
+int16_t raw_temp;  // Valor bruto de la temperatura
+float temp;  // Valor calculado de la temperatura
+uint8_t temp_data[2];  // temperatura en formato texto
+
+// Datos del motor y vehículo
+uint8_t Engine_Speed = 0;  // Velocidad del motor
+uint8_t Throttle_Pos = 0;  // Posición del acelerador
+uint8_t Coolant_Temp = 0;  // Temperatura del refrigerante
+uint8_t Battery_Voltage = 0;  // Voltaje batería
+uint8_t Throttle_Pedal = 0;  // Pedal acelerador
+int16_t Brake_Pressure = 0;  // Pedal freno
+int16_t RPM = 0;  // Revoluciones por minuto
+uint8_t gear = 0b00000000;  // Marcha
+
+// Textos para mostrar datos
+char RPM_text[20];  // Texto con valor de RPM
+char Coolant_Text[20];  // Texto con valor de temperatura del refrigerante
+char Battery_Text[20];  // Texto con valor de voltaje de la batería
+
+// Función para manejar la recepción de mensajes en el FIFO
+// (Se activa automáticamente cuando se detecta que hay un mensaje pendiente en el FIFO)
+void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
+	HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData);
+	countNex++;
+
+	switch (RxHeader.StdId){
+
+		case 0x118:
+			// Temperatura del mortor
+			Engine_Speed = (uint8_t)RxData[0];
+			sprintf(RPM_text, "%d", Engine_Speed*100);
+			//NEXTION_SendText("revValue",RPM_text ," RPM");
+			//NEXTION_Send_Revs(Engine_Speed*100);
+
+			// Pedal de aceleración
+			Throttle_Pos = (uint8_t)RxData[1];
+			//NEXTION_SendNumber("acePedal", Throttle_Pos);
+
+			// Temperatura del motor
+			Coolant_Temp = (uint8_t)RxData[3];
+			//sprintf(Coolant_Text, "%d", Coolant_Temp);
+			//NEXTION_SendText_unidades("engineTemp",Coolant_Text ,"\xB0");
+			break;
+
+		case 0x120:
+			// Voltaje de la batería
+			Battery_Voltage = (uint8_t)RxData[3];
+			//sprintf(Battery_Text, "%d", Battery_Voltage);
+			//NEXTION_SendText("voltage", Battery_Text, "V");
+
+			break;
+		case 0x655:
+			//Pedal de freno
+			Brake_Pressure = (int16_t)RxData[0]<<8 | RxData[1];
+			//NEXTION_SendNumber("brakePedal", Brake_Pressure/100);
+
+			break;
+		case 0x640:
+			// Revoluciones por minuto
+			RPM = (int16_t)RxData[0]<<8 | RxData[1];
+			break;
+	}
+}
 
 /**
   * @brief  The application entry point.
   * @retval int
   */
-int main(void)
-{
-
-  /* USER CODE BEGIN 1 */
-
-  /* USER CODE END 1 */
+int main(void){
 
   /* MCU Configuration--------------------------------------------------------*/
-
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
 
-  /* USER CODE BEGIN Init */
-
-  /* USER CODE END Init */
-
   /* Configure the system clock */
   SystemClock_Config();
-
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_CAN_Init();
   MX_I2C1_Init();
   MX_USART3_UART_Init();
-  /* USER CODE BEGIN 2 */
 
-  /* USER CODE END 2 */
+  //Inicializa comunicación CAN
+  HAL_CAN_Start(&hcan);
 
-  /* Infinite loop */
+  // Activar notificaciones para manejar interrupciones cuando hay mensajes pendientes en el FIFO0 de recepción del controlador CAN
+  HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO0_MSG_PENDING);
+
+  // Inicializa el sensor MPU-6050
+  MPU_6050_init();
+
+  // Configuración de los parámetros de envío CAN
+  TxHeader.StdId = 0x446;
+  TxHeader.ExtId = 0x00;
+  TxHeader.RTR = CAN_RTR_DATA;
+  TxHeader.IDE = CAN_ID_STD;
+  TxHeader.DLC = 4;
+  TxHeader.TransmitGlobalTime = DISABLE;
   /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-    /* USER CODE END WHILE */
+  while (1) {
 
-    /* USER CODE BEGIN 3 */
+	  // Lectura de datos del sensor MPU-6050
+	  x_acceleration = MPU_6050_Get_Acc_X();
+	  x_acceleration = x_acceleration / 1000;
+
+	  y_acceleration = MPU_6050_Get_Acc_Y();
+	  y_acceleration = y_acceleration / 1000;
+
+	  z_acceleration = MPU_6050_Get_Acc_Z();
+	  z_acceleration = z_acceleration / 1000;
+
+	  // Lectura sensor temperatura
+	  temp = MPU_6050_Get_Temp();
+
+	  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8);
+	  HAL_Delay(50);
   }
-  /* USER CODE END 3 */
+
 }
 
 /**
