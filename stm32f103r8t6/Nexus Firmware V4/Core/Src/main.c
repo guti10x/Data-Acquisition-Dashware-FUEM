@@ -6,6 +6,7 @@
 #include "stdio.h"
 
 #include "MPU_6050.h"
+#include "nextion_comunication.h"
 
 /* Connectivity variables ---------------------------------------------------------*/
 CAN_HandleTypeDef hcan;
@@ -61,8 +62,9 @@ int16_t Brake_Pressure = 0;  // Pedal freno
 int16_t RPM = 0;  // Revoluciones por minuto
 uint8_t gear = 0b00000000;  // Marcha
 
-// Textos para mostrar datos
+// Textos para mostrar datos (se necesitan las siguintes varibles en formato texto para poder mostrarslas en la interfaz)
 char RPM_text[20];  // Texto con valor de RPM
+char Speed_Text[20];  // Texto con valor velocidad
 char Coolant_Text[20];  // Texto con valor de temperatura del refrigerante
 char Battery_Text[20];  // Texto con valor de voltaje de la batería
 
@@ -75,38 +77,39 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
 	switch (RxHeader.StdId){
 
 		case 0x118:
-			// Temperatura del mortor
+			// Velocidad
 			Engine_Speed = (uint8_t)RxData[0];
-			sprintf(RPM_text, "%d", Engine_Speed*100);
-			//NEXTION_SendText("revValue",RPM_text ," RPM");
-			//NEXTION_Send_Revs(Engine_Speed*100);
+			sprintf(Speed_Text, "%d", Engine_Speed);
+			NEXTION_SendText(&huart3, "speed", Speed_Text, NULL);
 
 			// Pedal de aceleración
 			Throttle_Pos = (uint8_t)RxData[1];
-			//NEXTION_SendNumber("acePedal", Throttle_Pos);
+			NEXTION_SendNumber(&huart3, "acePedal", Throttle_Pos);
 
 			// Temperatura del motor
 			Coolant_Temp = (uint8_t)RxData[3];
-			//sprintf(Coolant_Text, "%d", Coolant_Temp);
-			//NEXTION_SendText_unidades("engineTemp",Coolant_Text ,"\xB0");
+			sprintf(Coolant_Text, "%d", Coolant_Temp);
+			NEXTION_SendText(&huart3,"engineTemp",Coolant_Text,"\xB0");
 			break;
 
 		case 0x120:
 			// Voltaje de la batería
 			Battery_Voltage = (uint8_t)RxData[3];
-			//sprintf(Battery_Text, "%d", Battery_Voltage);
-			//NEXTION_SendText("voltage", Battery_Text, "V");
-
+			sprintf(Battery_Text, "%d", Battery_Voltage);
+			NEXTION_SendText(&huart3,"voltage",Battery_Text,"v");
 			break;
+
 		case 0x655:
 			//Pedal de freno
 			Brake_Pressure = (int16_t)RxData[0]<<8 | RxData[1];
-			//NEXTION_SendNumber("brakePedal", Brake_Pressure/100);
-
+			NEXTION_SendNumber(&huart3, "brakePedal", Brake_Pressure);
 			break;
+
 		case 0x640:
 			// Revoluciones por minuto
 			RPM = (int16_t)RxData[0]<<8 | RxData[1];
+			sprintf(RPM_text, "%d", RPM);
+			NEXTION_SendText(&huart3, "revValue", RPM_text, "RPM");
 			break;
 	}
 }

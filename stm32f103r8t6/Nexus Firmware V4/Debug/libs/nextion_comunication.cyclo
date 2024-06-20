@@ -1,0 +1,6 @@
+../libs/nextion_comunication.c:13:6:NEXTION_SendText	3
+../libs/nextion_comunication.c:29:6:NEXTION_SendNumber	1
+../libs/nextion_comunication.c:38:6:NEXTION_Send_Revs	7
+../libs/nextion_comunication.c:67:6:NEXTION_SendPageChange	1
+../libs/nextion_comunication.c:81:6:NEXTION_Alert	2
+../libs/nextion_comunication.c:95:6:NEXTION_estado_color	1

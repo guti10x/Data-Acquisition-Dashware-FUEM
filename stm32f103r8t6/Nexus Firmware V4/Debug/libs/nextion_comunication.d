@@ -1,4 +1,5 @@
-Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
+libs/nextion_comunication.o: ../libs/nextion_comunication.c \
+ C:/Users/34673/dash_FUEM/dashware_FUEM/dashware_FUEM/stm32f103r8t6/nextion_comunication_lib_f1/inc/nextion_comunication.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h \
  ../Core/Inc/stm32f1xx_hal_conf.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h \
@@ -23,10 +24,8 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_i2c.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h \
- ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h \
- C:/Users/34673/dash_FUEM/dashware_FUEM/dashware_FUEM/stm32f103r8t6/MPU_6050_lib/inc/MPU_6050.h \
- C:/Users/34673/dash_FUEM/dashware_FUEM/dashware_FUEM/stm32f103r8t6/nextion_comunication_lib_f1/inc/nextion_comunication.h
-../Core/Inc/main.h:
+ ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h
+C:/Users/34673/dash_FUEM/dashware_FUEM/dashware_FUEM/stm32f103r8t6/nextion_comunication_lib_f1/inc/nextion_comunication.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h:
 ../Core/Inc/stm32f1xx_hal_conf.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h:
@@ -52,5 +51,3 @@ C:/Users/34673/STM32Cube/Repository/STM32Cube_FW_F4_V1.28.0/Drivers/CMSIS/Includ
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_i2c.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h:
-C:/Users/34673/dash_FUEM/dashware_FUEM/dashware_FUEM/stm32f103r8t6/MPU_6050_lib/inc/MPU_6050.h:
-C:/Users/34673/dash_FUEM/dashware_FUEM/dashware_FUEM/stm32f103r8t6/nextion_comunication_lib_f1/inc/nextion_comunication.h:
