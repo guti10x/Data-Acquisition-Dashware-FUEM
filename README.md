@@ -22,7 +22,21 @@ Este repositorio contiene el código fuente para la interfaz de pantalla Nextion
      4. Cargue este archivo .tft en una tarjeta SD.
      5. Inserte la tarjeta SD en el lector de tarjetas de la pantalla Nextion para cargar la interfaz actualizada.
 
-## 2. **Firmware para Arduino Uno:**
+
+## 2. **Firmware para STM32F103R8T6 (Nexus):**
+  - **Carpeta:** `stm32f103r8t6`
+  - **Descripción:** Aquí encontrarás el proyecto de código desarrollado para la placa STM32F103R8T6, para la comunicación, adquisición y procesado de los diferentes datos de los sensores del monoplaza. Esta unidad, conocida como NEXUS, incluirá las siguientes características: comunicación CAN-BUS, adquisición de datos en SD, control de la unidad de movimiento inercial de 6 ejes del coche, 16 pines configurables para sensores o actuadores, y comunicación UART e I2C abierta para expansiones futuras.
+
+  - **Contenido:**
+    - **Librería nextion_comunication_lib_f1:**
+      La carpeta `stm32f103r8t6/nextion_comunication_lib_f1` contiene la librería de firmware para la placa STM32F103R8T6 que facilita la comunicación con la interfaz de pantalla.
+    - **Librería MPU_6050_lib:**
+      La carpeta `stm32f103r8t6/MPU_6050_lib` contiene la librería para el control del sensor de movimiento inercial MPU-6050 del coche, permitiendo la lectura de datos de aceleración y giroscopio.
+    - **Proyecto STM32Cube IDE (Nexus Firmware V4):**
+       En la carpeta `stm32/Nexus Firmware V4`, encontrarás el proyecto para STM32Cube IDE. Este proyecto utiliza las librerías mencionadas anteriormente para recibir datos de sensores a través de CAN-BUS, procesarlos, mostrarlos en la interfaz, y almacenarlos en una tarjeta SD.
+
+
+## 3. **Firmware para Arduino Uno:**
 
   - **Carpeta:** `Arduino/ScreenUpdater`
   - **Descripción:** contiene el código fuente para el firmware que controla la interfaz de pantalla en un Arduino Uno.
@@ -42,11 +56,12 @@ Este repositorio contiene el código fuente para la interfaz de pantalla Nextion
      4. Haga clic en la librería en los resultados de la búsqueda.
      5. Haga clic en el botón `Instalar`.
 
-## 3. **Firmware para STM32:**
+## 4. **Firmware para STM32:**
   - **Carpeta:** `stm32`
   - **Descripción:** aquí encontrarás tanto la librería como el proyecto de ejemplo desarrollado en STM32Cube IDE destinados al control de la interfaz de pantalla.
-    - **Librería (nextion_comunication_lib):**
-      La carpeta `stm32/nextion_comunication_lib` contiene la librería de firmware para STM32 que facilita la comunicación con la interfaz de pantalla.
+  - **Contenido:**
+    - **Librería (nextion_comunication_lib_f4):**
+      La carpeta `stm32/nextion_comunication_lib_f4` contiene la librería de firmware para STM32f4 que facilita la comunicación con la interfaz de pantalla.
     - **Proyecto STM32Cube IDE (dash_updater):**
       En la carpeta `stm32/dash_updater`, encontrarás un proyecto para STM32Cube IDE. Este proyecto, contenido en el archivo `main`, utiliza la librería mencionada anteriormente. También incluye una función de prueba que envía números aleatorios a la interfaz, mostrándolos en pantalla para comprobar su correcto funcionamiento.
 - **Esquema de conexión:**
