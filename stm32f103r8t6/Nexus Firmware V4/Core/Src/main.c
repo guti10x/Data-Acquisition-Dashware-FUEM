@@ -89,7 +89,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan){
 			// Temperatura del motor
 			Coolant_Temp = (uint8_t)RxData[3];
 			sprintf(Coolant_Text, "%d", Coolant_Temp);
-			NEXTION_SendText(&huart3,"engineTemp",Coolant_Text,"\xB0");
+			NEXTION_SendText(&huart3,"engineTemp",Coolant_Text,"\xB0")	 ;
 			break;
 
 		case 0x120:
@@ -149,6 +149,17 @@ int main(void){
   TxHeader.IDE = CAN_ID_STD;
   TxHeader.DLC = 4;
   TxHeader.TransmitGlobalTime = DISABLE;
+
+  //Mostrar landing page
+  NEXTION_SendPageChange(&huart3,"page2");
+  HAL_Delay(3400);
+
+  //Mostrar dashware page
+  NEXTION_SendPageChange(&huart3,"page1");
+
+  //Inicializar interfaz a negro (por si se quedó la página con estilos a rojo por alguna alerta provocada por NEXTION_Alert())
+  NEXTION_Alert(&huart3, 0);
+
   /* USER CODE BEGIN WHILE */
   while (1) {
 
