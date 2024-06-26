@@ -1,5 +1,11 @@
 # Dashboard FUEM formula student car 
 
+<p align="left">
+  <img src="https://img.shields.io/badge/version-4.0-green">
+  <img src="https://img.shields.io/badge/test-✓-green">
+  <img src="https://img.shields.io/badge/code-C-blueviolet">
+</p>
+
 La función principal del daswhare consiste en mostrar información relevante al piloto sobre la velocidad, la marcha y las revoluciones a las que circula el coche, así como la temperatura de los frenos, la temperatura del motor, el voltaje de la batería y la aceleración y frenado del coche durante la conducción.
 
 Además, permite mostrar alertas de forma visual y sencilla al piloto cuando es necesario detener el monoplaza debido a lecturas peligrosas de los sensores del vehículo, como una temperatura muy elevada del motor o un voltaje de la batería inadecuado.
@@ -25,7 +31,13 @@ Este repositorio contiene el código fuente para la interfaz de pantalla Nextion
 
 ## 2. **Firmware para STM32F103R8T6 (Nexus):**
   - **Carpeta:** `stm32f103r8t6`
-  - **Descripción:** Aquí encontrarás el proyecto de código desarrollado para la placa STM32F103R8T6, para la comunicación, adquisición y procesado de los diferentes datos de los sensores del monoplaza. Esta unidad, conocida como NEXUS, incluirá las siguientes características: comunicación CAN-BUS, adquisición de datos en SD, control de la unidad de movimiento inercial de 6 ejes del coche, 16 pines configurables para sensores o actuadores, y comunicación UART e I2C abierta para expansiones futuras.
+  - **Descripción:**
+       - Aquí encontrarás el proyecto de código desarrollado para la placa STM32F103R8T6, para la comunicación, adquisición y procesado de los diferentes datos de los sensores del monoplaza. Esta unidad, conocida como NEXUS, incluirá las siguientes características: comunicación CAN-BUS, adquisición de datos en SD, control de la unidad de movimiento inercial de 6 ejes del coche, 16 pines configurables para sensores o actuadores, y comunicación UART e I2C abierta para expansiones futuras.
+  - **Esquema de conexión:**
+       - La pantalla Nextion se conecta mediante comunicación serial utilizando el pin Tx a la placa Nexus (stm32f103r8t6) con el objetivo de mandar y mostrar los datos de los diferentes sensores del monoplazo en la interfaz. Estos datos son obtenidos de la comunicación CAN establecida y gestionada por la placa Nexus (stm32F103R8T6) y su conexión a la centralita del coche, lugar donde todos los sensores mandan los valores leidos.
+
+      ![stm32_conexiónV55dwdginallllllllll](https://github.com/guti10x/dashware_FUEM/assets/82153822/f326c3b8-3d8f-4221-99ca-0170c6a70b85)
+
 
   - **Contenido:**
     - **Librería nextion_comunication_lib_f1:**
@@ -58,7 +70,8 @@ Este repositorio contiene el código fuente para la interfaz de pantalla Nextion
 
 ## 4. **Firmware para STM32:**
   - **Carpeta:** `stm32`
-  - **Descripción:** aquí encontrarás tanto la librería como el proyecto de ejemplo desarrollado en STM32Cube IDE destinados al control de la interfaz de pantalla.
+  - **Descripción:**
+       - aquí encontrarás tanto la librería como el proyecto de ejemplo desarrollado en STM32Cube IDE destinados al control de la interfaz de pantalla.
   - **Contenido:**
     - **Librería (nextion_comunication_lib_f4):**
       La carpeta `stm32/nextion_comunication_lib_f4` contiene la librería de firmware para STM32f4 que facilita la comunicación con la interfaz de pantalla.
