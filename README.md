@@ -16,8 +16,8 @@ Este repositorio contiene el código fuente para la interfaz de pantalla Nextion
 ![renderV2](https://github.com/guti10x/dashware_FUEM/assets/82153822/01db5d63-2d34-4cf3-86f5-d116d4691659)
 
 # Contenido del Repositorio:
-## 1. **Interfaz Nextion:**
-- **Carpeta:** `Interfaz_Nextion`
+## 1. **Interfaz para la pantalla Nextion (NX4827P043):**
+- **Carpeta:** `Nextion - NX4827P043n`
 - **Descripción:** contiene el código y los recursos, incluido el archivo .HMI, para la interfaz gráfica desarrollada en Nextion Editor.
 - **Interfaz:** ![interfazz_VW](https://github.com/guti10x/dashware_FUEM/assets/82153822/a8ad2718-c9cc-43a6-8d26-2878875c4afd)
 - **Instrucciones para realizar cambios:**
@@ -29,8 +29,8 @@ Este repositorio contiene el código fuente para la interfaz de pantalla Nextion
      5. Inserte la tarjeta SD en el lector de tarjetas de la pantalla Nextion para cargar la interfaz actualizada.
 
 
-## 2. **Firmware para STM32F103R8T6 (Nexus):**
-  - **Carpeta:** `stm32f103r8t6`
+## 2. **Firmware para la placa Nexus (STM32F103R8T6):**
+  - **Carpeta:** `Nexus - stm32f103r8t6`
   - **Descripción:**
        - Aquí encontrarás el proyecto de código desarrollado para la placa STM32F103R8T6, para la comunicación, adquisición y procesado de los diferentes datos de los sensores del monoplaza. Esta unidad, conocida como NEXUS, incluirá las siguientes características: comunicación CAN-BUS, adquisición de datos en SD, control de la unidad de movimiento inercial de 6 ejes del coche, 16 pines configurables para sensores o actuadores, y comunicación UART e I2C abierta para expansiones futuras.
   - **Esquema de conexión:**
@@ -48,9 +48,25 @@ Este repositorio contiene el código fuente para la interfaz de pantalla Nextion
        En la carpeta `stm32/Nexus Firmware V4`, encontrarás el proyecto para STM32Cube IDE. Este proyecto utiliza las librerías mencionadas anteriormente para recibir datos de sensores a través de CAN-BUS, procesarlos, mostrarlos en la interfaz, y almacenarlos en una tarjeta SD.
 
 
-## 3. **Firmware para Arduino Uno:**
+## 3. **Firmware para la placa NucleoF4 (nucleo-f411re):**
+  - **Carpeta:** `NucleoF4 - nucleo-f411re`
+  - **Descripción:**
+       - aquí encontrarás tanto la librería como el proyecto de ejemplo desarrollado en STM32Cube IDE destinados al control de la interfaz de pantalla.
+  - **Contenido:**
+    - **Librería (nextion_comunication_lib_f4):**
+      La carpeta `stm32/nextion_comunication_lib_f4` contiene la librería de firmware para STM32f4 que facilita la comunicación con la interfaz de pantalla.
+    - **Proyecto STM32Cube IDE (dash_updater):**
+      En la carpeta `stm32/dash_updater`, encontrarás un proyecto para STM32Cube IDE. Este proyecto, contenido en el archivo `main`, utiliza la librería mencionada anteriormente. También incluye una función de prueba que envía números aleatorios a la interfaz, mostrándolos en pantalla para comprobar su correcto funcionamiento.
+- **Esquema de conexión:**
+  ![stm32_conexiónV2](https://github.com/guti10x/dashware_FUEM/assets/82153822/dcfc57b8-2f26-422c-98d2-acca9b066ac5)
+- **Instalación:**
+  - Consulta cómo instalar e implementar la biblioteca en cualquier proyecto en STMCUBE IDE en el [manual de instalación de nextion_comunication_lib](./stm32/nextion_comunication_lib/docs/Manual%20de%20instalación%20nextion_comunication_lib.pdf).
+- **Documentación:**
+  - Consulta la [documentación de nextion_comunication_lib](./stm32/nextion_comunication_lib/docs/Documentación%20nextion_comunication_lib.pdf) para obtener más información sobre cómo utilizar la librería y sus características.
 
-  - **Carpeta:** `Arduino/ScreenUpdater`
+## 4. **Firmware para la placa Arduino Uno:**
+
+  - **Carpeta:** `Arduino - Arduino UNO`
   - **Descripción:** contiene el código fuente para el firmware que controla la interfaz de pantalla en un Arduino Uno.
   - **Esquema de conexión:**
     ![arduino_conexiónV2](https://github.com/guti10x/dashware_FUEM/assets/82153822/2aa48b07-787d-4e32-90cc-13cbd44ab1e0)
@@ -67,19 +83,3 @@ Este repositorio contiene el código fuente para la interfaz de pantalla Nextion
      3. En el cuadro de búsqueda, escriba el nombre de la librería que necesita instalar.
      4. Haga clic en la librería en los resultados de la búsqueda.
      5. Haga clic en el botón `Instalar`.
-
-## 4. **Firmware para STM32:**
-  - **Carpeta:** `stm32`
-  - **Descripción:**
-       - aquí encontrarás tanto la librería como el proyecto de ejemplo desarrollado en STM32Cube IDE destinados al control de la interfaz de pantalla.
-  - **Contenido:**
-    - **Librería (nextion_comunication_lib_f4):**
-      La carpeta `stm32/nextion_comunication_lib_f4` contiene la librería de firmware para STM32f4 que facilita la comunicación con la interfaz de pantalla.
-    - **Proyecto STM32Cube IDE (dash_updater):**
-      En la carpeta `stm32/dash_updater`, encontrarás un proyecto para STM32Cube IDE. Este proyecto, contenido en el archivo `main`, utiliza la librería mencionada anteriormente. También incluye una función de prueba que envía números aleatorios a la interfaz, mostrándolos en pantalla para comprobar su correcto funcionamiento.
-- **Esquema de conexión:**
-  ![stm32_conexiónV2](https://github.com/guti10x/dashware_FUEM/assets/82153822/dcfc57b8-2f26-422c-98d2-acca9b066ac5)
-- **Instalación:**
-  - Consulta cómo instalar e implementar la biblioteca en cualquier proyecto en STMCUBE IDE en el [manual de instalación de nextion_comunication_lib](./stm32/nextion_comunication_lib/docs/Manual%20de%20instalación%20nextion_comunication_lib.pdf).
-- **Documentación:**
-  - Consulta la [documentación de nextion_comunication_lib](./stm32/nextion_comunication_lib/docs/Documentación%20nextion_comunication_lib.pdf) para obtener más información sobre cómo utilizar la librería y sus características.
