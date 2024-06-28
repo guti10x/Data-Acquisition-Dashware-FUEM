@@ -150,12 +150,17 @@ int main(void){
   TxHeader.DLC = 4;
   TxHeader.TransmitGlobalTime = DISABLE;
 
-  //Mostrar landing page
-  NEXTION_SendPageChange(&huart3,"page2");
-  HAL_Delay(3400);
-
-  //Mostrar dashware page
-  NEXTION_SendPageChange(&huart3,"page1");
+  //Mostrar landing view v1
+  //NEXTION_SendPageChange(&huart1,"page0");
+  //HAL_Delay(2800);
+  //Mostrar landing view v2
+  NEXTION_SendPageChange(&huart1,"page2");
+  HAL_Delay(3500);
+  //Mostrar Quiros test view
+  //NEXTION_SendPageChange(&huart1,"page3");
+  //HAL_Delay(2800);
+  //Mostrar dash view
+  NEXTION_SendPageChange(&huart1,"page1");
 
   //Inicializar interfaz a negro (por si se quedó la página con estilos a rojo por alguna alerta provocada por NEXTION_Alert())
   NEXTION_Alert(&huart3, 0);
