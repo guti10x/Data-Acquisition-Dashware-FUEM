@@ -48,7 +48,7 @@
 									<listOptionValue builtIn="false" value="../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy"/>
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Device/ST/STM32F4xx/Include"/>
 									<listOptionValue builtIn="false" value="../Drivers/CMSIS/Include"/>
-									<listOptionValue builtIn="false" value="&quot;C:\Users\34673\dash_FUEM\dashware_FUEM_V2\dashware_FUEM\stm32\nextion_comunication_lib\inc&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;../..\nextion_comunication_lib_f4\inc&quot;"/>
 								</option>
 								<inputType id="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c.1531662746" superClass="com.st.stm32cube.ide.mcu.gnu.managedbuild.tool.c.compiler.input.c"/>
 							</tool>
