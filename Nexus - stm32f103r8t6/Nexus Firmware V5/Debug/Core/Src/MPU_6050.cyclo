@@ -1,0 +1,5 @@
+../Core/Src/MPU_6050.c:14:6:MPU_6050_init	5
+../Core/Src/MPU_6050.c:59:18:MPU_6050_Get_Acc_X	1
+../Core/Src/MPU_6050.c:68:18:MPU_6050_Get_Acc_Y	1
+../Core/Src/MPU_6050.c:77:18:MPU_6050_Get_Acc_Z	1
+../Core/Src/MPU_6050.c:86:7:MPU_6050_Get_Temp	1

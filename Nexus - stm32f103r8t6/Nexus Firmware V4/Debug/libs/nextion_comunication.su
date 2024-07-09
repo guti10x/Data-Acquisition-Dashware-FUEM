@@ -1,6 +1,0 @@
-../libs/nextion_comunication.c:13:6:NEXTION_SendText	40	static
-../libs/nextion_comunication.c:29:6:NEXTION_SendNumber	32	static
-../libs/nextion_comunication.c:38:6:NEXTION_Send_Revs	32	static
-../libs/nextion_comunication.c:67:6:NEXTION_SendPageChange	24	static
-../libs/nextion_comunication.c:81:6:NEXTION_Alert	32	static
-../libs/nextion_comunication.c:95:6:NEXTION_estado_color	32	static

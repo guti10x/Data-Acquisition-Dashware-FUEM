@@ -1,0 +1,6 @@
+../Core/Src/nextion_comunication.c:14:6:NEXTION_SendText	3
+../Core/Src/nextion_comunication.c:30:6:NEXTION_SendNumber	1
+../Core/Src/nextion_comunication.c:39:6:NEXTION_Send_Revs	7
+../Core/Src/nextion_comunication.c:70:6:NEXTION_SendPageChange	1
+../Core/Src/nextion_comunication.c:84:6:NEXTION_Alert	2
+../Core/Src/nextion_comunication.c:102:6:NEXTION_estado_color	1
