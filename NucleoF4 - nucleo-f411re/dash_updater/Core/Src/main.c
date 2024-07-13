@@ -1,3 +1,21 @@
+/* USER CODE BEGIN Header */
+/**
+  ******************************************************************************
+  * @file           : main.c
+  * @brief          : Main program body
+  ******************************************************************************
+  * @attention
+  *
+  * Copyright (c) 2024 STMicroelectronics.
+  * All rights reserved.
+  *
+  * This software is licensed under terms that can be found in the LICENSE file
+  * in the root directory of this software component.
+  * If no LICENSE file comes with this software, it is provided AS-IS.
+  *
+  ******************************************************************************
+  */
+/* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "math.h"
@@ -7,16 +25,45 @@
 #include <time.h>
 #include "nextion_comunication.h"
 
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+
+/* USER CODE END Includes */
+
+/* Private typedef -----------------------------------------------------------*/
+/* USER CODE BEGIN PTD */
+
+/* USER CODE END PTD */
+
+/* Private define ------------------------------------------------------------*/
+/* USER CODE BEGIN PD */
+
+/* USER CODE END PD */
+
+/* Private macro -------------------------------------------------------------*/
+/* USER CODE BEGIN PM */
+
+/* USER CODE END PM */
+
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart2;
+
+/* USER CODE BEGIN PV */
+
+/* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART1_UART_Init(void);
+/* USER CODE BEGIN PFP */
 
+/* USER CODE END PFP */
+
+/* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
 void procesarReceivedCan(uint16_t valor) {
     // Generar un número aleatorio entre 0 y 9
     int random_value = rand() % 100;
@@ -88,101 +135,118 @@ void procesarReceivedCan(uint16_t valor) {
 			break;
 
         case 0x648:
-        	NEXTION_Send_Revs(&huart1, rev);
+        	NEXTION_Send_Revs_v2(&huart1, rev);
             break;
         default:
             break;
     }
 }
+/* USER CODE END 0 */
 
-
+/**
+  * @brief  The application entry point.
+  * @retval int
+  */
 int main(void)
 {
 
-  // Semilla para la generación de números aleatorios
-  srand(time(NULL));
+  /* USER CODE BEGIN 1 */
+
+  /* USER CODE END 1 */
+
+  /* MCU Configuration--------------------------------------------------------*/
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
 
+  /* USER CODE BEGIN Init */
+    // Semilla para la generación de números aleatorios
+    srand(time(NULL));
+  /* USER CODE END Init */
+
   /* Configure the system clock */
   SystemClock_Config();
+
+  /* USER CODE BEGIN SysInit */
+
+  /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_USART1_UART_Init();
-
+  /* USER CODE BEGIN 2 */
   //Mostrar landing view
-  NEXTION_SendPageChange(&huart1,"page0");
-  HAL_Delay(2800);
+  //NEXTION_SendPageChange(&huart1,"page0");
+  //HAL_Delay(2800);
   //Mostrar dash view
-  NEXTION_SendPageChange(&huart1,"page2");
+  //NEXTION_SendPageChange(&huart1,"page2");
   HAL_Delay(3400);
   //Mostrar dash view
-  NEXTION_SendPageChange(&huart1,"page3");
-  HAL_Delay(2800);
+  //NEXTION_SendPageChange(&huart1,"page3");
+  //HAL_Delay(2800);
   //Mostrar dash view
   NEXTION_SendPageChange(&huart1,"page1");
 
   //Inicializar interfaz a negro (por si se quedó con estilos a rojo por NEXTION_Alert())
   NEXTION_Alert(&huart1, 0);
+  /* USER CODE END 2 */
 
   /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  	//HAL_Delay(400);
+	  	int randoom_value = 2;
+	  	char text[20]; // Declarar variable donde alamcenar la conversión
+	  	sprintf(text, "%d", randoom_value); //Inicializar la conversión
 
-	HAL_Delay(400);
-	int randoom_value = 2;
-	char text[20]; // Declarar variable donde alamcenar la conversión
-	sprintf(text, "%d", randoom_value); //Inicializar la conversión
+	  	// Generar valor aleatorio entre 0 y 9
+	  	int random_value = rand() % 12;
 
-	// Generar valor aleatorio entre 0 y 9
-	int random_value = rand() % 12;
+	  	switch(random_value) {
+	  		case 0:
+	  			procesarReceivedCan(0x110);
+	  			break;
+	  		case 1:
+	  			procesarReceivedCan(0x120);
+	  			break;
+	  		case 2:
+	  			procesarReceivedCan(0x655);
+	  			break;
+	  		case 3:
+	  			procesarReceivedCan(0x640);
+	  			break;
+	  		case 4:
+	  			procesarReceivedCan(0x641);
+	  			break;
+	  		case 5:
+	  			procesarReceivedCan(0x642);
+	  			break;
+	  		case 6:
+	  			procesarReceivedCan(0x643);
+	  			break;
+	  		case 7:
+	  			procesarReceivedCan(0x644);
+	  			break;
+	  		case 8:
+	  			procesarReceivedCan(0x645);
+	  			break;
+	  		case 9:
+	  			procesarReceivedCan(0x646);
+	  			break;
+	  		case 10:
+	  			procesarReceivedCan(0x647);
+	  			break;
+	  		case 11:
+	  			procesarReceivedCan(0x648);
+	  			break;
+	  		default:
+	  			printf("Número aleatorio fuera de rango\n");
+	  			break;
+	  	}
 
-	switch(random_value) {
-		case 0:
-			procesarReceivedCan(0x110);
-			break;
-		case 1:
-			procesarReceivedCan(0x120);
-			break;
-		case 2:
-			procesarReceivedCan(0x655);
-			break;
-		case 3:
-			procesarReceivedCan(0x640);
-			break;
-		case 4:
-			procesarReceivedCan(0x641);
-			break;
-		case 5:
-			procesarReceivedCan(0x642);
-			break;
-		case 6:
-			procesarReceivedCan(0x643);
-			break;
-		case 7:
-			procesarReceivedCan(0x644);
-			break;
-		case 8:
-			procesarReceivedCan(0x645);
-			break;
-		case 9:
-			procesarReceivedCan(0x646);
-			break;
-		case 10:
-			procesarReceivedCan(0x647);
-			break;
-		case 11:
-			procesarReceivedCan(0x648);
-			break;
-		default:
-			printf("Número aleatorio fuera de rango\n");
-			break;
 	}
-
-  }
 
 }
 
@@ -248,7 +312,7 @@ static void MX_USART1_UART_Init(void)
 
   /* USER CODE END USART1_Init 1 */
   huart1.Instance = USART1;
-  huart1.Init.BaudRate = 9600;
+  huart1.Init.BaudRate = 115200;
   huart1.Init.WordLength = UART_WORDLENGTH_8B;
   huart1.Init.StopBits = UART_STOPBITS_1;
   huart1.Init.Parity = UART_PARITY_NONE;
