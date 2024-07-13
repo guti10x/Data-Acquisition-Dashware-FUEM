@@ -35,7 +35,7 @@ void NEXTION_SendNumber(UART_HandleTypeDef *huart, char *obj, int number) {
     free(buffer); // Libera la memoria asignada al buffer
 }
 
-// Función para actualizar los indicadores de revoluviones del dash
+// Función para actualizar los indicadores de revoluviones del dash (progress bar)
 void NEXTION_Send_Revs(UART_HandleTypeDef *huart, int val) {
     int resultado1 = 0;
     int resultado2 = 0;
@@ -111,4 +111,31 @@ void NEXTION_estado_color(UART_HandleTypeDef *huart, char *obj, int color) {
 
     // Libera el buffer
     free(buffer);
+}
+
+// Función para actualizar los indicadores de revoluviones del dash (rectángulos de colores)
+void NEXTION_Send_Revs_v2(UART_HandleTypeDef *huart, int val) {
+    int resultado1 = 0;
+    int resultado2 = 0;
+    int resultado3 = 0;
+
+    // Check the value ranges and assign corresponding color values
+    if (val >= 0 && val < 3000) {
+        resultado1 = 32736; // Color green for range 0-3000
+        resultado2 = 0;
+        resultado3 = 0;
+    } else if (val >= 3000 && val < 6000) {
+        resultado1 = 32736; // Color red for range 3000-6000
+        resultado2 = 63488;
+        resultado3 = 0;
+    } else if (val >= 6000 && val <= 9000) {
+        resultado1 = 32736; // Color blue for range 6000-9000
+        resultado2 = 63488;
+        resultado3 = 1055;
+    }
+
+    // Send the color values to the corresponding LEDs on the Nextion display
+    NEXTION_estado_color(huart, "led1", resultado1);
+    NEXTION_estado_color(huart, "led2", resultado2);
+    NEXTION_estado_color(huart, "led3", resultado3);
 }

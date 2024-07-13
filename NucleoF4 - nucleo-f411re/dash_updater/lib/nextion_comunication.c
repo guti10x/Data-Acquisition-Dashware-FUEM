@@ -35,7 +35,7 @@ void NEXTION_SendNumber(UART_HandleTypeDef *huart, char *obj, int number) {
     free(buffer); // Libera la memoria asignada al buffer
 }
 
-// Función para actualizar los indicadores de revoluviones del dash
+// Función para actualizar los indicadores de revoluviones del dash (progress bar)
 void NEXTION_Send_Revs(UART_HandleTypeDef *huart, int val) {
     int resultado1 = 0;
     int resultado2 = 0;
@@ -113,6 +113,7 @@ void NEXTION_estado_color(UART_HandleTypeDef *huart, char *obj, int color) {
     free(buffer);
 }
 
+// Función para actualizar los indicadores de revoluviones del dash (rectángulos de colores)
 void NEXTION_Send_Revs_v2(UART_HandleTypeDef *huart, int val) {
     int resultado1 = 0;
     int resultado2 = 0;

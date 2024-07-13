@@ -6182,6 +6182,7 @@ void NEXTION_estado_color(UART_HandleTypeDef *huart, char *obj, int color) {
 
 080028f4 <NEXTION_Send_Revs_v2>:
 
+// Función para actualizar los indicadores de revoluviones del dash (rectángulos de colores)
 void NEXTION_Send_Revs_v2(UART_HandleTypeDef *huart, int val) {
  80028f4:	b580      	push	{r7, lr}
  80028f6:	b086      	sub	sp, #24

@@ -142,7 +142,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 
 			sprintf(RPM_text, "%d", Engine_Speed);
 			NEXTION_SendText(&huart1, "revValue", RPM_text, "RPM");
-			NEXTION_Send_Revs(&huart1, Engine_Speed);
+			NEXTION_Send_Revs_v2(&huart1, Engine_Speed);
 
 
 			NEXTION_SendNumber(&huart1, "acePedal", Throttle_Pos);
