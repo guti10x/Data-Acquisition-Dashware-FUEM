@@ -60,9 +60,9 @@ Este repositorio contiene el código fuente para la interfaz de pantalla Nextion
 - **Esquema de conexión:**
   ![stm32_conexiónV2](https://github.com/guti10x/dashware_FUEM/assets/82153822/dcfc57b8-2f26-422c-98d2-acca9b066ac5)
 - **Instalación:**
-  - Consulta cómo instalar e implementar la biblioteca en cualquier proyecto en STMCUBE IDE en el [manual de instalación de nextion_comunication_lib](./stm32/nextion_comunication_lib/docs/Manual%20de%20instalación%20nextion_comunication_lib.pdf).
+  - Consulta cómo instalar e implementar la biblioteca en cualquier proyecto en STMCUBE IDE en el [manual de instalación de nextion_comunication_lib](NucleoF4%20-%20nucleo-f411re/nextion_comunication_lib_f4/docs/Manual%20de%20instalación%20nextion_comunication_lib.pdf).
 - **Documentación:**
-  - Consulta la [documentación de nextion_comunication_lib](./stm32/nextion_comunication_lib/docs/Documentación%20nextion_comunication_lib.pdf) para obtener más información sobre cómo utilizar la librería y sus características.
+  - Consulta la [documentación de nextion_comunication_lib](./NucleoF4%20-%20nucleo-f411re/nextion_comunication_lib_f4/docs/Documentación%20nextion_comunication_lib.pdf) para obtener más información sobre cómo utilizar la librería y sus características.
 
 ## 4. **Firmware para la placa Arduino Uno:**
 
