@@ -29,6 +29,7 @@
 #include "stdint.h"
 #include "time.h"
 #include "string.h"
+#include "stdbool.h"
 
 #include "MPU_6050.h"
 #include "nextion_comunication.h"
@@ -77,7 +78,7 @@ static void MX_RTC_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_I2C1_Init(void);
 /* USER CODE BEGIN PFP */
-  
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -86,25 +87,31 @@ CAN_TxHeaderTypeDef TxHeader;
 CAN_RxHeaderTypeDef RxHeader;
 
 uint32_t TxMailbox; 	//Un MAILBOX es una paquete con espacio para 4 Bytes donde se preparan los datos a enviar
-						          //Supports 3 different Mailboxes (Search it in the datasheet form MCU)
+						//Supports 3 different Mailboxes (Search it in the datasheet form MCU)
 uint8_t TxData[8];
 uint8_t RxData[8];
-
-uint8_t count = 0;
-
 
 int Engine_Speed = 0;
 uint8_t Throttle_Pos = 0;
 uint8_t Coolant_Temp = 0;
 uint8_t Battery_Voltage = 0;
+float Battery_Voltage_Float = 0;
 uint8_t Throttle_Pedal = 0;
 int16_t Brake_Pressure = 0;
 int16_t RPM = 0;
 uint8_t Gear = 0;
+uint8_t Ignition = 0;
+uint8_t SDC = 0;
+uint8_t Sw_Starter = 0;
+uint8_t Left_Fan = 0;
+uint8_t Right_Fan = 0;
 
-float_t Acc_X = 0;
-float Acc_Y = 0;
-float Acc_Z = 0;
+uint8_t CAN_Status = 0;
+
+//float Acc_X = 0;
+//float Acc_Y = 0;
+//float Acc_Z = 0;
+
 uint8_t MPU_6050_Temp = 0;
 
 // Textos para mostrar datos (se necesitan las siguintes varibles en formato texto para poder mostrarslas en la interfaz)
@@ -112,15 +119,20 @@ char RPM_text[20];  // Texto con valor de RPM
 char Speed_Text[20];  // Texto con valor velocidad
 char Coolant_Text[20];  // Texto con valor de temperatura del refrigerante
 char Battery_Text[20];  // Texto con valor de voltaje de la batería
+char Ambient_Temperature_Text[20];
+
+
+const char *array_elementos[] = {"speed", "revValue", "gear", "brake1", "brake2", "brake3", "brake4"};
 
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
 
 	HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData);
-	count++;
-
+	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_RESET);
+	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_9);
 	switch (RxHeader.StdId){
+
 //	case 0x118:
 ////			Engine_Speed = (uint8_t)RxData[0];
 //
@@ -130,26 +142,47 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 //			break;
 
 		case 0x120:
+			CAN_Status = 1;
 
+			//Revisar esta parte de las variables de Engine Speed
 			Engine_Speed = (uint8_t)RxData[0];
 			Engine_Speed = (int)Engine_Speed *100;
 			Throttle_Pos = (uint8_t)RxData[1];
 			Coolant_Temp = (uint8_t)RxData[2];
 			Battery_Voltage = (uint8_t)RxData[3];
-
+			Battery_Voltage_Float = (float)Battery_Voltage/10;
 			Brake_Pressure = (int16_t)RxData[4]<<8 | RxData[5];
+			Gear = (uint8_t)RxData[6];
+			MPU_6050_Temp = MPU_6050_Get_Temp();
 
 
+			//Funcion para enviar las revoluciones del motor
 			sprintf(RPM_text, "%d", Engine_Speed);
 			NEXTION_SendText(&huart1, "revValue", RPM_text, "RPM");
-			NEXTION_Send_Revs_v2(&huart1, Engine_Speed);
+			NEXTION_Send_Revs(&huart1, Engine_Speed);
 
-
+			//Funcion para enviar la posicion de la mariposa
 			NEXTION_SendNumber(&huart1, "acePedal", Throttle_Pos);
 
+			//Funcion para enviar la temperatura del refrigerante
 			sprintf(Coolant_Text, "%d", Coolant_Temp);
 			NEXTION_SendText(&huart1,"engineTemp",Coolant_Text,"\xB0");
+
+			sprintf(Ambient_Temperature_Text, "%d", MPU_6050_Temp);
+			NEXTION_SendText(&huart1,"ambtemperature",Ambient_Temperature_Text,"\xB0");
+
+			//Condicional para el estado del CAN
+			if (CAN_Status == 1){
+				NEXTION_estado_color(&huart1, "can", 1024);
+			}
+			else{
+				NEXTION_estado_color(&huart1, "can", 63488);
+			}
+
+
+
 			//Creamos el condicional para los colores de la temperatura de refrigerante
+
 			if (Coolant_Temp<95){
 				NEXTION_estado_color(&huart1, "engineTemp", 36609);
 			}
@@ -161,8 +194,9 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 			}
 
 
-			sprintf(Battery_Text, "%d",Battery_Voltage);
+			sprintf(Battery_Text, "%f",Battery_Voltage_Float);
 			NEXTION_SendText(&huart1,"voltage",Battery_Text,"V");
+
 			//Creamos el condicional para los colores de la bateria
 			if (Battery_Voltage>=12.5){
 				NEXTION_estado_color(&huart1, "voltage", 36609);
@@ -176,14 +210,61 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 
 
 			NEXTION_SendNumber(&huart1, "brakePedal", Brake_Pressure);
+			break;
 
-			Gear = (uint8_t)RxData[6];
+		//case 0x64D:
+
+			//break;
+
+		case 0x521:
+			Ignition = (uint8_t)RxData[0];
+			SDC = (uint8_t)RxData[1];
+			Sw_Starter = (uint8_t)RxData[2];
+			Left_Fan = (uint8_t)RxData[3];
+			Right_Fan = (uint8_t)RxData[4];
+
+			//Condicional para el estado del Ignition
+						if (Ignition == 1){
+							NEXTION_estado_color(&huart1, "ignition", 1024);
+						}
+						else {
+							NEXTION_estado_color(&huart1, "ignition", 63488);
+						}
+
+						//Condicional para el estado SDC
+						if (SDC == 0){
+							NEXTION_estado_color(&huart1, "sdc", 1024);
+						}
+						else{
+							NEXTION_estado_color(&huart1, "sdc", 63488 );
+						}
+
+						//Condicional para el estado del Starter
+						if (Sw_Starter == 1){
+							NEXTION_estado_color(&huart1, "str", 1024);
+						}
+						else {
+							NEXTION_estado_color(&huart1, "str", 63488);
+						}
+						//Condicional para el estado del Left Fan
+						if (Left_Fan == 1){
+							NEXTION_estado_color(&huart1, "fanLeft", 1024);
+						}
+						else {
+							NEXTION_estado_color(&huart1, "fanLeft", 63488);
+						}
+						//Condicional para el estado del Right Fan
+						if (Right_Fan == 1){
+							NEXTION_estado_color(&huart1, "fanRight", 1024);
+						}
+						else {
+							NEXTION_estado_color(&huart1, "fanRight", 63488);
+						}
 
 			break;
 //		case 0x655:
 //			//Brake_Pressure = (int16_t)RxData[0]<<8 | RxData[1];
 //
-
 //
 //			break;
 
@@ -231,17 +312,17 @@ int main(void)
   MX_SPI2_Init();
   MX_FATFS_Init();
   MX_I2C1_Init();
-
   /* USER CODE BEGIN 2 */
 
-  NEXTION_SendPageChange(&huart1,"page2");
-  HAL_Delay(2800);
 
-  //Mostrar dashware page
-  NEXTION_SendPageChange(&huart1,"page1");
+  //NEXTION_SendPageChange(&huart1,"page2");
+  //HAL_Delay(2800);
 
-  //Inicializar interfaz a negro (por si se quedó la página con estilos a rojo por alguna alerta provocada por NEXTION_Alert())
-  NEXTION_Alert(&huart1, 0);
+             //Mostrar dashware page
+ // NEXTION_SendPageChange(&huart1,"page1");
+
+             //Inicializar interfaz a negro (por si se quedó la página con estilos a rojo por alguna alerta provocada por NEXTION_Alert())
+  //NEXTION_Alert(&huart1, 0);
 
   HAL_CAN_Start(&hcan);
 
@@ -249,6 +330,7 @@ int main(void)
 
   MPU_6050_init();
 
+  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_SET);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -259,16 +341,12 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-	HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
-	HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
+	//HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
+	//HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
 
-	sprintf(Date,"Date: %02d.%02d.%02d\t",sDate.Date,sDate.Month,sDate.Year);
-	sprintf(Time,"Time: %02d.%02d.%02d\t",sTime.Hours,sTime.Minutes,sTime.Seconds);
+	//sprintf(Date,"Date: %02d.%02d.%02d\t",sDate.Date,sDate.Month,sDate.Year);
+	//sprintf(Time,"Time: %02d.%02d.%02d\t",sTime.Hours,sTime.Minutes,sTime.Seconds);
 
-	Acc_X = MPU_6050_Get_Acc_X()/1000;
-	Acc_Y = MPU_6050_Get_Acc_Y()/1000;
-	Acc_Z = MPU_6050_Get_Acc_Z()/1000;
-	MPU_6050_Temp = MPU_6050_Get_Temp();
   }
   /* USER CODE END 3 */
 }
@@ -556,7 +634,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, SD_CS_Pin|GPIO_PIN_8|GPIO_PIN_9, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, SD_CS_Pin|GPIO_PIN_8|LED_Amarillo_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_8, GPIO_PIN_RESET);
@@ -568,8 +646,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : SD_CS_Pin PC8 PC9 */
-  GPIO_InitStruct.Pin = SD_CS_Pin|GPIO_PIN_8|GPIO_PIN_9;
+  /*Configure GPIO pins : SD_CS_Pin PC8 LED_Amarillo_Pin */
+  GPIO_InitStruct.Pin = SD_CS_Pin|GPIO_PIN_8|LED_Amarillo_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
