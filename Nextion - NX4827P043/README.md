@@ -31,7 +31,8 @@
 - Con testigos de SDC, IGN y CAN
 - Con loading page de carga
   
-  ![dash_V4 (2)](https://github.com/user-attachments/assets/f4b6c92f-ed71-40f7-9310-a12f5b82e3a3)
+![dash_V5](https://github.com/user-attachments/assets/4585081f-6e75-40a3-aa5a-3b7553417483)
+
 
 
 ## Dashboard_V5
@@ -40,7 +41,8 @@
 - Con testigos de SDC, IGN y CAN
 - Sin loading page de carga
 
-  ![dash_V4 (2)](https://github.com/user-attachments/assets/f4b6c92f-ed71-40f7-9310-a12f5b82e3a3)
+![dash_V5](https://github.com/user-attachments/assets/4585081f-6e75-40a3-aa5a-3b7553417483)
+
 
 <br><br>
 # Pasos para cargar la Interfaz en la Pantalla Nextion
