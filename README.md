@@ -43,9 +43,9 @@ Este repositorio contiene el código fuente para la interfaz de pantalla Nextion
     - **Librería nextion_comunication_lib_f1:**
       La carpeta `stm32f103r8t6/nextion_comunication_lib_f1` contiene la librería de firmware para la placa STM32F103R8T6 que facilita la comunicación con la interfaz de pantalla.
         - **Guia de instalación:**
-          - Consulta cómo instalar e implementar la biblioteca en cualquier proyecto en STMCUBE IDE en el [manual de instalación de nextion_comunication_lib](./Nexus%20-%20stm32f103r8t6/nextion_comunication_lib_f1/docs/Documentación%20nextion_comunication_lib.pdf).
+          - Consulta cómo instalar e implementar la biblioteca en cualquier proyecto en STMCUBE IDE en el [manual de instalación de nextion_comunication_lib](./Nexus%20-%20stm32f103r8t6/Librerias/nextion_comunication_lib_f1/docs/Documentación%20nextion_comunication_lib.pdf).
         - **Documentación:**
-          - Consulta la [documentación de nextion_comunication_lib](./Nexus%20-%20stm32f103r8t6/nextion_comunication_lib_f1/docs/Manual%20de%20instalación%20nextion_comunication_lib.pdf) para obtener más información sobre cómo utilizar la librería y sus características.
+          - Consulta la [documentación de nextion_comunication_lib](./Nexus%20-%20stm32f103r8t6/Librerias/nextion_comunication_lib_f1/docs/Manual%20de%20instalación%20nextion_comunication_lib.pdf) para obtener más información sobre cómo utilizar la librería y sus características.
 
     - **Librería MPU_6050_lib:**
       La carpeta `stm32f103r8t6/MPU_6050_lib` contiene la librería para el control del sensor de movimiento inercial MPU-6050 del coche, permitiendo la lectura de datos de aceleración y giroscopio.
