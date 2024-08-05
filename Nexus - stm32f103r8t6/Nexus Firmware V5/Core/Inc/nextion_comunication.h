@@ -27,5 +27,6 @@ void NEXTION_Send_Revs(UART_HandleTypeDef *huart, int val);
 void NEXTION_SendPageChange(UART_HandleTypeDef *huart, char *page_name);
 void NEXTION_Alert(UART_HandleTypeDef *huart, int color);
 void NEXTION_estado_color(UART_HandleTypeDef *huart, char *obj, int color);
+void NEXTION_Send_Revs_v2(UART_HandleTypeDef *huart, int val);
 
 #endif // NEXTION_COMMUNICATION_H

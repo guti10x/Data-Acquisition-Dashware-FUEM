@@ -84,7 +84,7 @@ void procesarReceivedCan(uint16_t valor) {
         	NEXTION_SendText(&huart1,"voltage", text, "V");
         	if (random_value > 0 && random_value <= 50) {
         	    NEXTION_Alert(&huart1, 0); //black
-        	    NEXTION_estado_color(&huart1, "voltage", 36609);  //green
+        	    NEXTION_estado_color(&huart1, "voltage", 36609);  //green-
         	} else if (random_value > 50 && random_value <= 80) {
         	    NEXTION_Alert(&huart1, 0); //black
         	    NEXTION_estado_color(&huart1, "voltage", 64520); //orange
@@ -99,7 +99,8 @@ void procesarReceivedCan(uint16_t valor) {
         	NEXTION_SendNumber(&huart1, "brakePedal", random_value);
             break;
         case 0x640:
-        	NEXTION_SendText(&huart1,"revValue", text, " RPM");
+        	strcpy(text, "2");
+        	NEXTION_SendText(&huart1,"revValue", "car", " RPM");
             break;
         case 0x641:
         	NEXTION_SendText(&huart1,"gear", text, NULL);
