@@ -55,6 +55,8 @@ FIL fil;
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+ADC_HandleTypeDef hadc1;
+
 CAN_HandleTypeDef hcan;
 
 I2C_HandleTypeDef hi2c1;
@@ -77,6 +79,7 @@ static void MX_USART1_UART_Init(void);
 static void MX_RTC_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_I2C1_Init(void);
+static void MX_ADC1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -99,12 +102,13 @@ float Battery_Voltage_Float = 0;
 uint8_t Throttle_Pedal = 0;
 int16_t Brake_Pressure = 0;
 int16_t RPM = 0;
-uint8_t Gear = 0;
 uint8_t Ignition = 0;
 uint8_t SDC = 0;
 uint8_t Sw_Starter = 0;
 uint8_t Left_Fan = 0;
 uint8_t Right_Fan = 0;
+uint16_t Gear = 0;
+uint8_t Brake_Percentage = 0;
 
 uint8_t CAN_Status = 0;
 
@@ -120,6 +124,7 @@ char Speed_Text[20];  // Texto con valor velocidad
 char Coolant_Text[20];  // Texto con valor de temperatura del refrigerante
 char Battery_Text[20];  // Texto con valor de voltaje de la batería
 char Ambient_Temperature_Text[20];
+char Gear_Text[5] = "N";
 
 
 const char *array_elementos[] = {"speed", "revValue", "gear", "brake1", "brake2", "brake3", "brake4"};
@@ -130,7 +135,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 
 	HAL_CAN_GetRxMessage(hcan, CAN_RX_FIFO0, &RxHeader, RxData);
 	HAL_GPIO_WritePin(GPIOC, GPIO_PIN_8, GPIO_PIN_RESET);
-	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_9);
+	HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_8);
 	switch (RxHeader.StdId){
 
 //	case 0x118:
@@ -152,14 +157,49 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 			Battery_Voltage = (uint8_t)RxData[3];
 			Battery_Voltage_Float = (float)Battery_Voltage/10;
 			Brake_Pressure = (int16_t)RxData[4]<<8 | RxData[5];
-			Gear = (uint8_t)RxData[6];
+			Brake_Percentage = 0.0138*Brake_Pressure;
+			NEXTION_SendNumber(&huart1, "brakePedal", Brake_Percentage);
+
 			MPU_6050_Temp = MPU_6050_Get_Temp();
+			HAL_ADC_Start(&hadc1);
+			HAL_ADC_PollForConversion(&hadc1, HAL_MAX_DELAY);
+			Gear = HAL_ADC_GetValue(&hadc1);
+
+			//Condicionales para conocer el valor de la Marcha
+			if ((Gear>=40)&&(Gear<500)){
+				strcpy(Gear_Text,"N");
+				NEXTION_SendText(&huart1, "gear", Gear_Text, NULL);
+			}
+			else if((Gear>=600)&&(Gear<950)){
+				strcpy(Gear_Text,"1");
+				NEXTION_SendText(&huart1, "gear", Gear_Text, NULL);
+			}
+			else if((Gear>=1000)&&(Gear<1350)){
+				strcpy(Gear_Text,"2");
+				NEXTION_SendText(&huart1, "gear", Gear_Text, NULL);
+			}
+			else if((Gear>=1500)&&(Gear<1800)){
+				strcpy(Gear_Text,"3");
+				NEXTION_SendText(&huart1, "gear", Gear_Text, NULL);
+			}
+			else if((Gear>=1900)&&(Gear<2100)){
+				strcpy(Gear_Text,"4");
+				NEXTION_SendText(&huart1, "gear", Gear_Text, NULL);
+			}
+			else if((Gear>=2150)&&(Gear<2400)){
+				strcpy(Gear_Text,"5");
+				NEXTION_SendText(&huart1, "gear", Gear_Text, NULL);
+			}
+			else if(Gear>=2400){
+				strcpy(Gear_Text,"6");
+				NEXTION_SendText(&huart1, "gear", Gear_Text, NULL);
+			}
 
 
 			//Funcion para enviar las revoluciones del motor
 			sprintf(RPM_text, "%d", Engine_Speed);
-			NEXTION_SendText(&huart1, "revValue", RPM_text, "RPM");
-			NEXTION_Send_Revs(&huart1, Engine_Speed);
+			NEXTION_SendText(&huart1, "revValue", RPM_text, NULL);
+			NEXTION_Send_Revs_v2(&huart1, Engine_Speed);
 
 			//Funcion para enviar la posicion de la mariposa
 			NEXTION_SendNumber(&huart1, "acePedal", Throttle_Pos);
@@ -194,7 +234,7 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 			}
 
 
-			sprintf(Battery_Text, "%f",Battery_Voltage_Float);
+			sprintf(Battery_Text, "%.1f",Battery_Voltage_Float);
 			NEXTION_SendText(&huart1,"voltage",Battery_Text,"V");
 
 			//Creamos el condicional para los colores de la bateria
@@ -207,7 +247,6 @@ void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 			else{
 				NEXTION_estado_color(&huart1, "voltage", 63488);
 			}
-
 
 			NEXTION_SendNumber(&huart1, "brakePedal", Brake_Pressure);
 			break;
@@ -312,6 +351,7 @@ int main(void)
   MX_SPI2_Init();
   MX_FATFS_Init();
   MX_I2C1_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
 
 
@@ -389,12 +429,60 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_RTC|RCC_PERIPHCLK_ADC;
   PeriphClkInit.RTCClockSelection = RCC_RTCCLKSOURCE_LSI;
+  PeriphClkInit.AdcClockSelection = RCC_ADCPCLK2_DIV6;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief ADC1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_ADC1_Init(void)
+{
+
+  /* USER CODE BEGIN ADC1_Init 0 */
+
+  /* USER CODE END ADC1_Init 0 */
+
+  ADC_ChannelConfTypeDef sConfig = {0};
+
+  /* USER CODE BEGIN ADC1_Init 1 */
+
+  /* USER CODE END ADC1_Init 1 */
+
+  /** Common config
+  */
+  hadc1.Instance = ADC1;
+  hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
+  hadc1.Init.ContinuousConvMode = DISABLE;
+  hadc1.Init.DiscontinuousConvMode = DISABLE;
+  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+  hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+  hadc1.Init.NbrOfConversion = 1;
+  if (HAL_ADC_Init(&hadc1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+  /** Configure Regular Channel
+  */
+  sConfig.Channel = ADC_CHANNEL_0;
+  sConfig.Rank = ADC_REGULAR_RANK_1;
+  sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN ADC1_Init 2 */
+
+  /* USER CODE END ADC1_Init 2 */
+
 }
 
 /**
@@ -626,9 +714,9 @@ static void MX_GPIO_Init(void)
 /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
-  __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, GPIO_PIN_2, GPIO_PIN_RESET);

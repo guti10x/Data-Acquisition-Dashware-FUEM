@@ -4,3 +4,4 @@
 ../Core/Src/nextion_comunication.c:70:6:NEXTION_SendPageChange	24	static
 ../Core/Src/nextion_comunication.c:84:6:NEXTION_Alert	32	static
 ../Core/Src/nextion_comunication.c:102:6:NEXTION_estado_color	32	static
+../Core/Src/nextion_comunication.c:116:6:NEXTION_Send_Revs_v2	32	static

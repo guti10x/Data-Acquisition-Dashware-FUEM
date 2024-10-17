@@ -66,32 +66,6 @@ void NEXTION_Send_Revs(UART_HandleTypeDef *huart, int val) {
     NEXTION_SendNumber(huart,"led3", resultado3);
 }
 
-void NEXTION_Send_Revs_v2(UART_HandleTypeDef *huart, int val) {
-    int resultado1 = 0;
-    int resultado2 = 0;
-    int resultado3 = 0;
-
-    // Check the value ranges and assign corresponding color values
-    if (val >= 0 && val < 3000) {
-        resultado1 = 32736; // Color green for range 0-3000
-        resultado2 = 0;
-        resultado3 = 0;
-    } else if (val >= 3000 && val < 6000) {
-        resultado1 = 32736; // Color red for range 3000-6000
-        resultado2 = 63488;
-        resultado3 = 0;
-    } else if (val >= 6000 && val <= 9000) {
-        resultado1 = 32736; // Color blue for range 6000-9000
-        resultado2 = 63488;
-        resultado3 = 1055;
-    }
-
-    // Send the color values to the corresponding LEDs on the Nextion display
-    NEXTION_estado_color(huart, "led1", resultado1);
-    NEXTION_estado_color(huart, "led2", resultado2);
-    NEXTION_estado_color(huart, "led3", resultado3);
-}
-
 //Función para realizar la transicción de la landing view al dash
 void NEXTION_SendPageChange(UART_HandleTypeDef *huart,char *page_name) {
     // Reserva memoria para un buffer de 50 bytes
@@ -137,4 +111,40 @@ void NEXTION_estado_color(UART_HandleTypeDef *huart, char *obj, int color) {
 
     // Libera el buffer
     free(buffer);
+}
+
+void NEXTION_Send_Revs_v2(UART_HandleTypeDef *huart, int val) {
+    int resultado1 = 0;
+    int resultado2 = 0;
+    int resultado3 = 0;
+
+    // Check the value ranges and assign corresponding color values
+    if (val<50) {
+            resultado1 = 0; // Color green for range 0-3000
+            resultado2 = 0;
+            resultado3 = 0;
+    }
+    else if (val >= 50 && val <2000) {
+        resultado1 = 32736; // Color green for range 0-3000
+        resultado2 = 0;
+        resultado3 = 0;
+    } else if (val >= 2000 && val < 4000) {
+        resultado1 = 32736; // Color red for range 3000-6000
+        resultado2 = 63488;
+        resultado3 = 0;
+    } else if (val >= 4000 && val<6200) {
+        resultado1 = 32736; // Color blue for range 6000-9000
+        resultado2 = 63488;
+        resultado3 = 1055;
+    }
+    else if (val >= 6200){
+            resultado1 = 37053; // Color blue for range 6000-9000
+            resultado2 = 37053;
+            resultado3 = 37053;
+    }
+
+    // Send the color values to the corresponding LEDs on the Nextion display
+    NEXTION_estado_color(huart, "led1",resultado1);
+    NEXTION_estado_color(huart, "led2",resultado2);
+    NEXTION_estado_color(huart, "led3",resultado3);
 }
